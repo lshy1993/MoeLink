@@ -1,20 +1,18 @@
 <template>
-    <div>
-        itemlist
-    </div>
+  <div>
+    itemlist
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'OrderList',
-    data(){
-        return {
+  name: 'OrderList',
+  data() {
+    return {
 
-        }
     }
+  }
 }
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

@@ -1,19 +1,16 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 
-import router from './js/router';
-
-import axios from 'axios';
-import VueAxios from 'vue-axios';
+import router from './router';
 
 import ElementPlus from 'element-plus';
-import 'element-plus/dist/index.css';
+import 'element-plus/dist/index.css'
 
-import moment from 'vue-moment';
+import moment from 'moment';
 
-import data from './js/data.js';
-import func from './js/func.js';
-import User from './js/user.js';
+import data from './data';
+import func from './utils';
+import User from './types/User';
 
 import './style/animation.scss';
 import './style/common.scss';
@@ -23,7 +20,6 @@ import './style/user.scss';
 const app = createApp(App);
 
 app.use(router);
-app.use(VueAxios, axios);
 app.use(ElementPlus);
 app.use(moment);
 
