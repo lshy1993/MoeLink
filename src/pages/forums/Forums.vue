@@ -49,6 +49,16 @@ export default {
         return {
 
         }
+    },
+    computed:{
+        userLogined(){
+            return this.User.logined;
+        },
+    },
+    methods:{
+        loginDone(){
+            console.log('done');
+        },
     }
 }
 </script>

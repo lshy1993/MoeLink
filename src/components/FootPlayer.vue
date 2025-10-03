@@ -114,7 +114,9 @@ export default {
             document.removeEventListener('mousemove', this.onVolumeMouseMove);
         },
         changeTime: function(ft){
-            return this.$moment(ft*1000).format('mm:ss');
+            var d = this.$moment(ft*1000);
+            if(d.isValid()) return d.format('mm:ss');
+            else return "-";
         },
         getElementViewLeft (element) {
             let actualLeft = element.offsetLeft;
@@ -132,7 +134,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" slot-scope>
 #footPlayer {
     position: fixed;
     width: 100%;

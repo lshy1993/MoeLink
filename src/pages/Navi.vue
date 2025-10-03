@@ -24,8 +24,8 @@
             </router-link>
         </div>
         <div id="footerBox">
-            <a v-for="(link, index) in sflink" :key="index" :href=link.url>
-                <div class="circleBox noselect" :to=link.url>
+            <a v-for="(link, index) in sflink" :key="index" :href="link.url">
+                <div class="circleBox noselect" :to="link.url">
                     <div class="title">{{link.text}}</div>
                 </div>
             </a>
@@ -73,8 +73,8 @@ export default {
                 isMuted: false
             },
             music: {
-                title: 'secret base~君がくれたもの~',
-                src: 'https://luckymiao.site/static/audio/secretbase.mp3'
+                title: 'Rain Drop',
+                src: 'http://pic.moelink.site/ed.mp3'
             }
         }
     },
@@ -83,10 +83,10 @@ export default {
             return 'width:'+this.ttime/10/this.jumpsec+'%';
         },
         userLogined(){
-            return this.user.logined;
+            return this.User.logined;
         },
         commentMsg(){
-            return this.user.logined?"请输入弹幕":"登陆后即可发送弹幕";
+            return this.User.logined?"请输入弹幕":"登陆后即可发送弹幕";
         },
     },
     created(){
@@ -191,7 +191,7 @@ export default {
         onAudioVolumeChange () {
             this.aStatus.volume = this.audio.volume;
             this.aStatus.isMuted = this.audio.muted;
-        },
+        }
     },
     components:{
         footPlayer

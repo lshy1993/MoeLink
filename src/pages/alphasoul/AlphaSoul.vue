@@ -11,7 +11,7 @@ export default {
     props: ['user'],
     data(){
         return {
-            evolvegit: 'https://alphasoul.luckymiao.site/',
+            evolvegit: 'https://alphasoul.moelink.site/',
         }
     }
 }

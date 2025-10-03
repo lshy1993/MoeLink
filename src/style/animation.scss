@@ -1,0 +1,18 @@
+/* 动画过渡类 */
+.flip-list-move {
+    transition: transform 1s;
+}
+.flip-list-enter, .flip-list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+    //transform: translateY(30px);
+}
+.flip-list-leave-active {
+    position: absolute;
+}
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s ease-out;
+}
+.fade-enter, .fade-leave-to{
+    opacity: 0;
+}

@@ -1,6 +1,8 @@
 //import nameData from '@/assets/wf2.json';
 import charajson from '@/assets/wf3.json';
 import equipjson from '@/assets/equip.json';
+import bossList from '@/assets/gbf2.json';
+
 var langs = [
     {
         locale: 'zh',
@@ -24,14 +26,8 @@ var topBoxList = [
         url: '/alphasoul',
     },
     {
-        text: 'Evolve',
-        subtext: '进化联机版',
-        img: '',
-        url: '/evolve2',
-    },
-    {
         text: 'Re:dive Wiki',
-        subtext: '公主链接百科',
+        subtext: '公主连结百科',
         img: '',
         url: '/pcrwiki',
     },
@@ -41,7 +37,18 @@ var topBoxList = [
         img: '',
         url: '/wfwiki',
     },
-
+    {
+        text: 'Evolve',
+        subtext: '进化联机版',
+        img: '',
+        url: '/evolve2',
+    },
+    {
+        text: 'GBF',
+        subtext: '碧蓝幻想',
+        img: '',
+        url: '/gbf',
+    },
 ]
 
 var sideJumpList = [
@@ -67,7 +74,7 @@ var testList = [
     'ssdsdfdsfa'
 ]
 
-var naviBtn = [
+var naviBtnWF = [
     {
         to: "/wfwiki/",
         url: '',
@@ -110,6 +117,36 @@ var naviBtn = [
     }
 ]
 
+var naviBtnGBF = [
+    {
+        to: "/gbf",
+        url: '',
+        txt: "首页"
+    },
+    {
+        to: "/gbf/chara",
+        url: '',
+        txt: "角色"
+    },
+    // {
+    //     to: "gbf/equip",
+    //     url: '',
+    //     txt: "装备"
+    // },
+    // {
+    //     to: "gbf/simulator",
+    //     url: '',
+    //     txt: "模拟器"
+    // },
+    {
+        to: "/gbf/about",
+        url: '',
+        txt: "关于"
+    }
+]
+
+var naviBtnPCR = []
+
 var wfData = {};
 for(var chara of charajson){
     let n = chara.jname;
@@ -126,7 +163,10 @@ export default{
     topBoxList,
     sideJumpList,
     testList,
-    naviBtn,
+    naviBtnWF,
+    naviBtnGBF,
+    naviBtnPCR,
     wfData,
     eqData,
+    bossList
 }

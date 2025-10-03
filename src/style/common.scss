@@ -133,7 +133,9 @@ body {
             }
         }
     }
-
+    .clickable{
+        cursor: pointer;
+    }
     .CountDown {
         position: absolute;
         top: 30px;

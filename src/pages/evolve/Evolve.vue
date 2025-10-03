@@ -29,7 +29,7 @@ export default {
     },
     computed:{
         userLogined(){
-            return this.user.logined;
+            return this.User.logined;
         },
     },
     mounted(){

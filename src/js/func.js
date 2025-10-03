@@ -9,7 +9,7 @@ function ranBG(){
 
 function GetApi(path){
     //var url = "https://api.luckymiao.site/"
-    var url = "https://api.liantui.moe"
+    var url = "https://api.moelink.site"
     if(process.env.NODE_ENV == 'development'){
         url = "/api"
     }
@@ -49,17 +49,25 @@ function GetGetObject(url,data){
     return options;
 }
 
-function cryptPwd(password) {
-    var salt = "kusuharaui";
+function cryptPwd(password,salt="kusuharaui") {
     // 加盐密码的md5值
-    var md5 = crypto.createHash('md5');
-    var saltPassword = md5.update(password).digest('hex')+':'+salt;
+    var saltPassword = md5(password)+':'+salt;
     //console.log('原始密码：%s', password);
     //console.log('加盐后的密码：%s', saltPassword);
-    var sha256 = crypto.createHash('sha256');
-    var result = sha256.update(saltPassword).digest('hex');
+    var result = sha256(saltPassword);
     //console.log('密文：%s', result);
     return result;
+}
+
+function sha256(message){
+    var sha256 = crypto.createHash('sha256');
+    return sha256.update(message).digest('hex');
+}
+
+function md5(message){
+    
+    var md5 = crypto.createHash('md5');
+    return md5.update(message).digest('hex');
 }
 
 function FilterCharaDic(wfData,filter){
@@ -148,6 +156,7 @@ function FilterEquipDic(eqData,filter){
 }
 
 export default {
-    ranBG, GetApi, GetPostObject,GetGetObject, cryptPwd,
+    ranBG, GetApi, GetPostObject,GetGetObject,
+    cryptPwd, sha256, md5,
     FilterCharaDic, FilterEquipDic
 }

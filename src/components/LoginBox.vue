@@ -3,7 +3,7 @@
     <form class="loginForm" autocomplete="on">
         <div class="inputLine">
             <label for="login-user">UserName</label>
-            <input id="login-user" type="text" v-model="username" :placeholder="loginHint.user" autocomplete="on">
+            <input id="login-user" type="text" v-model="username" :placeholder="loginHint.user" autocomplete="on" @blur="checkUserOK()">
             <span class="errMsg">{{ loginErrMsg.user }}</span>
         </div>
         <div class="inputLine">
@@ -40,26 +40,25 @@ export default {
         }
     },
     watch:{
-        username(){
-            // 查询是否已经被注册
-            var data = { username: this.username };
-            // var post = this.Func.GetPostObject('/user/usercheck',data);
-            // this.$http(post).then((response)=>{
-            this.$http.post('api/user/usercheck',data).then((response)=>{
-                this.registerMode = response.data;
-            },(err)=>{
-                console.log(err);
-                this.registerMode = false;
-            });
-        },
         password(){
             this.checkPassword();
             //console.log('pwd changed');
         }
     },
     methods:{
+        checkUserOK(){
+            // 查询是否已经被注册
+            var data = { username: this.username };
+            let url = this.Func.GetApi('/user/usercheck');
+            this.$http.post(url,data).then((response)=>{
+                this.registerMode = response.data;
+            },(err)=>{
+                console.log(err);
+                this.registerMode = false;
+            });
+        },
         handleLogin: function(){
-            if(this.checkUsername(this.username) && this.checkPassword(this.password)){
+            if(this.checkUsername() && this.checkPassword()){
                 var loginData = {
                     username: this.username,
                     password: this.password
@@ -70,14 +69,17 @@ export default {
                     this.$emit('signup', loginData);
                 }else{
                     this.$emit('login', loginData);
-                }
-                
+                }                
             }
         },
         checkUsername(){
             // 检测用户名是否合法
             if(!this.username){
                 this.loginErrMsg.user = "用户名不能为空";
+                return false;
+            }
+            if(this.username.length < 5){
+                this.loginErrMsg.pwd = "用户名长度过小";
                 return false;
             }
             this.loginErrMsg.user = "";

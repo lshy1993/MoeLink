@@ -1,9 +1,10 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+/* eslint-disable */
+import Vue from 'vue';
+import Router from 'vue-router';
+Vue.use(Router);
+import User from './user.js';
 
-Vue.use(Router)
-
-export default new Router({
+var router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -15,7 +16,10 @@ export default new Router({
     {
       path: '/alphasoul',
       name: 'alphasoul',
-      component: ()=> import('../pages/alphasoul/AlphaSoul.vue')
+      component: ()=> import('../pages/alphasoul/AlphaSoul.vue'),
+      beforeEnter(to, from, next) {
+        window.location.href = "https://alphasoul.moelink.site";
+      }
     },
     {
       path: '/wfwiki',
@@ -40,7 +44,29 @@ export default new Router({
     {
       path: '/pcrwiki',
       name: 'pcrwiki',
-      component: ()=> import('../pages/pcrwiki/PcrWiki.vue')
+      component: ()=> import('../pages/pcrwiki/PcrWiki.vue'),
+      beforeEnter(to, from, next){
+        window.location.href = "https://pcrwiki.moelink.site";
+      }
+    },
+    {
+      path: '/gbf',
+      name: 'gbf',
+      component: ()=> import('../pages/gbf/GranBlue.vue'),
+      children:[
+        { path: '', component: ()=>import('../pages/gbf/Index.vue') },
+        // { path: 'about', component: ()=>import('../pages/gbf/About.vue') }
+      ]
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: ()=> import('../pages/admin/Admin.vue'),
+      meta: { requiresAdmin: true },
+      children:[
+        { path: 'itemlist', component: ()=>import('../pages/admin/ItemList.vue') },
+        { path: 'userlist', component: ()=>import('../pages/admin/UserList.vue') }
+      ]
     },
     {
       path: '/home',
@@ -54,3 +80,32 @@ export default new Router({
     }
   ]
 })
+
+// router.beforeEach((to, from, next) => {
+//   if (to.matched.some(record => record.meta.requiresAuth)) {
+//     // 需要登录
+//     if (!User.logined) {
+//       console.log("need login");
+//       next({
+//         path: '/',
+//         // query: { redirect: to.fullPath }
+//       });
+//     } else {
+//       next();
+//     }
+//   } else if(to.matched.some(record => record.meta.requiresAdmin)){
+//     if(!(User.logined && User.group >= 100)){
+//       console.log("need admin login");
+//       next({
+//         path: '/',
+//         // query: { redirect: to.fullPath }
+//       })
+//     }else{
+//       next();
+//     }
+//   } else {
+//     next();
+//   }
+// })
+
+export default router;

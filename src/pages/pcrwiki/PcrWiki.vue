@@ -11,7 +11,7 @@ export default {
     props: ['user'],
     data(){
         return {
-            evolvegit: 'https://pcrwiki.luckymiao.site/',
+            evolvegit: 'https://pcrwiki.moelink.site/',
         }
     }
 }
