@@ -41,13 +41,13 @@
         </div>
         <!-- 手牌与副露 -->
         <div v-for="pid_h in 3" :key="'hs' + pid_h" :class="['HandDiv', ['right', 'top', 'left'][pid_h - 1]]">
-          <div style="display: inline-block; float:left;">
+          <div class="HandTiles">
             <div v-for="(code, ind) in gameStatus.handStack[pid_h]" :key="ind"
               :class="[code == '*' ? 'PaiMask' : 'PaiDivS', checkLast(ind, pid_h) ? 'LastS' : '']">
               <img v-if="code != '*'" :src="imgUrl(code.substr(0, 2))" width="40" height="65" />
             </div>
           </div>
-          <div style="display: inline-block; float:right;">
+          <div class="HandFulu">
             <div v-for="(code, indc) in gameStatus.fuluStack[pid_h]" :key="'fulu' + indc" class="Mianzi">
               <div v-for="(p, i) in sortFulu(code)" :key="'ch' + i"
                 :class="['PaiDivS', p.length > 2 ? 'PaiRotateS' : '']">
@@ -187,7 +187,7 @@
             </div>
           </div>
           <div class="optDiv">
-            <div v-if="subOptOn" style="display:inline-block;float:left;">
+            <div v-if="subOptOn" class="OptionCombinations">
               <div v-for="(cb, cbindex) in combShow" :key="cbindex" @click="sendOpt(cb)"
                 style="display:inline-block;margin-right:10px;">
                 <div v-for="(p, index) in cb.combination.split('|')" :key="index" class="PaiDivS">
@@ -1048,5 +1048,29 @@ export default {
 .flip-list-leave-active {
   // position: absolute; //;
   transition: all .2s;
+}
+
+.HandDiv {
+  display: flex;
+  justify-content: space-between;
+  white-space: nowrap;
+}
+
+.HandTiles,
+.HandFulu,
+.HandFulu .Mianzi {
+  display: flex;
+}
+
+.HandFulu {
+  margin-left: auto;
+}
+
+.HandFulu .Mianzi {
+  float: none;
+}
+
+.OptionCombinations {
+  display: flex;
 }
 </style>
