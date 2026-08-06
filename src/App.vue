@@ -32,8 +32,8 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
-import { GetApi, cryptPwd } from './utils'; // 路径根据你的实际位置调整
-import loginBox from './components/LoginBox.vue';
+import { GetApi, cryptPwd } from '@/utils'; // 路径根据你的实际位置调整
+import loginBox from '@/components/LoginBox.vue';
 export default {
   name: 'app',
   data() {
@@ -63,7 +63,7 @@ export default {
   methods: {
     async checkServer() {
       try {
-        const url = GetApi('/check');
+        const url = GetApi('/health');
         const response = await axios.get(url);
         console.log(response.data);
         this.serverOn = response.data === true;

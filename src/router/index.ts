@@ -54,10 +54,12 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: '',
+        name: 'wfwiki-home',
         component: () => import('../pages/wfwiki/Index.vue')
       },
       {
         path: 'chara',
+        name: 'charalist',
         component: () => import('../pages/wfwiki/chara/Character.vue')
       },
       {
@@ -67,6 +69,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'equip',
+        name: 'equiplist',
         component: () => import('../pages/wfwiki/equip/Equipment.vue')
       },
       {
@@ -76,6 +79,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'simulator',
+        name: 'simulator-home',
         component: () => import('../pages/wfwiki/simulator/Simulate.vue')
       },
       {
@@ -85,6 +89,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: '/:pathMatch(.*)*',
+        name: 'wfwiki-404',
         component: () => import('../pages/wfwiki/Building.vue')
       }
     ]
@@ -109,6 +114,7 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: '',
+        name: 'gbf-home',
         component: () => import('../pages/gbf/Index.vue')
       }
       // { path: 'about', component: () => import('../pages/gbf/About.vue') }

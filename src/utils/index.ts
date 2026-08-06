@@ -56,9 +56,9 @@ function ranBG(): string {
  * @returns 完整的API URL
  */
 function GetApi(path: string): string {
-  let url = "https://api.moelink.site";
+  const url = "https://api.moelink.site";
   if (import.meta.env.MODE === 'development') {
-    url = "/api";
+    return "/api" + path;
   }
   return url + path;
 }

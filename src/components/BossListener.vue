@@ -1,8 +1,8 @@
 <template>
-<div>
-    <h3>{{ bossName }}</h3>
-    <div v-for="(ele,index) in bossList" :key="index">
-        <el-divider></el-divider>
+    <div>
+        <h3>{{ bossName }}</h3>
+        <div v-for="(ele, index) in bossList" :key="index">
+            <el-divider></el-divider>
             <el-row>
                 <el-col :span="12">
                     <el-button size="medium">{{ ele.id }}</el-button>
@@ -13,42 +13,42 @@
                     <div style="color:gray;font-size: 14px;">{{ deltaTime(ele.time) }}</div>
                 </el-col>
             </el-row>
+        </div>
     </div>
-</div>
 </template>
 
 <script>
 export default {
     name: "BossListener",
     props: ['bossName'],
-    data(){
+    data() {
         return {
             bossList: []
         }
     },
-    created(){
+    created() {
         this.queryBoss();
-        setInterval(this.queryBoss, 120*1000);
+        setInterval(this.queryBoss, 120 * 1000);
     },
-    computed:{
+    computed: {
         // bossFilter(){
         //     let dic = this.bossList.filter((x)=>{ return x.boss == this.bossName; });
         //     return dic;
         // },
     },
-    methods:{
-        deltaTime(time){
-            let stillUtc = this.$moment(time,"ddd MMM DD hh:mm:ss Z YYYY");
+    methods: {
+        deltaTime(time) {
+            let stillUtc = this.$moment(time, "ddd MMM DD hh:mm:ss Z YYYY");
             let local = stillUtc.toNow(true);
             return local;
         },
-        queryBoss(){
-            if(!this.bossName) return;
+        queryBoss() {
+            if (!this.bossName) return;
             let url = this.Func.GetApi('/gbf');
-            this.$http.post(url,{bossname: this.bossName}).then((response)=>{
+            this.$http.post(url, { bossname: this.bossName }).then((response) => {
                 // console.log('get raid boss');
                 this.bossList = response.data;
-            },(err)=>{
+            }, (err) => {
                 console.log(err);
             });
         },
@@ -57,7 +57,7 @@ export default {
 </script>
 
 <style lang="scss">
-.el-divider--horizontal{
+.el-divider--horizontal {
     margin: 2px 0;
 }
 </style>

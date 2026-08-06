@@ -1,8 +1,5 @@
-/* eslint-disable */ 
-const TingJudger = require('./majtool').TingJudger;
-const PaiMaker = require('./majtool').PaiMaker;
-const RonJudger = require('./majtool').RonJudger;
-const PtJudger = require('./majtool').PtJudger;
+/* eslint-disable */
+import { TingJudger, PaiMaker, RonJudger, PtJudger } from '../alphajs/majtool.js';
 
 class AI_Core {
   constructor() {

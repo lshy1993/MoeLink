@@ -9,9 +9,9 @@
 </template>
 
 <script>
-import AlphaSoulLive from './AlphaSoulLive.vue';
-import AnnounceNews from './AnnounceNews.vue';
-import AlphaSoulStatus from './AlphaSoulStatus.vue';
+import AlphaSoulLive from '@/components/alphasoul/AlphaSoulLive.vue';
+import AnnounceNews from '@/components/alphasoul/AnnounceNews.vue';
+import AlphaSoulStatus from '@/components/alphasoul/AlphaSoulStatus.vue';
 
 export default {
     name: 'Index',
