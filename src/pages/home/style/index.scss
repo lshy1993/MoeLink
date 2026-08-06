@@ -1,0 +1,210 @@
+/*首页标语*/
+#sloganBox {
+    padding-top: 50px;
+    //height: 30%;
+	//min-height: 200px;
+    color: black;
+    
+    #indexPostBig {
+        position: relative;
+        padding: 0 200px;
+        text-shadow: 4px 3px 2px grey;
+
+        p {
+            margin-bottom: 16px;
+        }
+        #topSlogan-01 {
+            font-size: 48px;
+            text-align: left;
+        }
+        #topSlogan-02 {
+            font-size: 32px;
+            text-align: right;
+        }
+    }
+
+    #indexPostSmall {
+        position: relative;
+        //left: 640px;
+        //width: 220px;
+        font-size: 24px;
+
+        p {
+            text-align: right;
+            margin-bottom: 10px;
+            //opacity: 0;
+        }
+    }
+}
+
+/*项目快速一览*/
+#quickNavi {
+    display: block;
+    margin-top: 10px;
+    
+    //项目点击块
+    .naviBlock {
+        position: relative;
+        display: inline-block;
+        width: calc(33% - 10px);
+        height: 200px;
+        margin: 5px;
+
+        &:hover {
+            .movingBg {
+                transform: scale(1.05);
+            }
+            .blockWrap {
+                padding-top: 30px !important;
+
+                .blockSummary {
+                    margin-top: 30px;
+                    opacity: 1;
+                }
+                .line {
+                    opacity: 1;
+                }
+                .blockFoot {
+                    opacity: 1;
+                }
+            }
+            
+        }
+
+        .blockBg {
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px;
+
+            &,>.movingBg {
+                width: 100%;
+                height: 100%;
+                transition: all .2s;
+            }
+
+            .movingBg {
+                background-position: left;
+            }
+        }
+
+        .blockWrap {
+            position: absolute;
+            height: 200px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 70px 20px 0 20px!important;
+            background-color: rgba(0,0,0,.3);
+            border-radius: 5px;
+            color: #fff !important;
+            text-align: center;
+
+            &,>*{
+                transition: all .3s;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+            .blockSummary {
+                min-height: 40px;
+                margin-top: 10px;
+                overflow: hidden;
+                opacity: 0;
+            }
+            .line {
+                height: 2px;
+                margin: 10px 0;
+                border-bottom: 1px solid #dee5e7;
+                opacity: 0;
+            }
+            .blockFoot {
+                opacity: 0;
+            }
+
+            a {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+            }
+        }
+    }
+}
+
+
+/*首页信息框*/
+#indexUpdateInfo {
+    position: relative;
+    display: block;
+    margin: 20px 0;
+    color: #fff;
+    //height: 32em;
+    //height: 100%;
+
+    .updateTitle {
+        text-align: center;
+        color: black;
+        font-size: 24px;
+        border: 1px solid white;
+        background: rgba(255, 255, 255, 0.8);
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding: 10px 0;
+    }
+
+    #indexNews {
+        //position: absolute;
+        display: inline-block;
+        width: 65%;
+        //left: 0;
+
+        #indexNewsWrap {
+            display: block;
+            height: 32em;
+            background: rgba(0, 0, 0, 0.6);
+            overflow-y: auto;
+        }
+
+    }
+
+    #indexSns {
+        position: absolute;
+        display: inline-block;
+        width: 30%;
+        min-width: 300px;
+        right: 0;
+
+        #indexSnsWrap {
+            height: 32em;
+            background: rgba(0, 0, 0, 0.6);
+            vertical-align: top;
+        }
+        
+    }
+
+}
+
+
+
+#infoControlPrev {
+    position: absolute;
+    left: 0;
+    bottom: 50px;
+}
+
+#infoControlNext {
+    position: absolute;
+    right: 0;
+    bottom: 50px;
+}
+
+.browse {
+    width: 30px;
+    height: 70px;
+    display: block;
+    cursor: pointer;
+}
+    
+
+	

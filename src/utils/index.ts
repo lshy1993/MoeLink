@@ -206,10 +206,11 @@ function FilterCharaDic(wfData: CharacterDictionary, filter: FilterOptions): Cha
    */
   function checkType(ele: Character): boolean {
     const keyarr: Record<string, string> = {};
-    const keys = ['火', '水', '雷', '风', '光', '暗'];
+    const keys = ['火', '水', '雷', '风', '光', '暗'] as const;
     for (let i = 0; i < filter.type.length && i < keys.length; i++) {
-      if (filter.type[i] && keys[i]) {
-        keyarr[keys[i]] = "";
+      const key = keys[i];
+      if (filter.type[i] && key) {
+        keyarr[key] = "";
       }
     }
     if (Object.keys(keyarr).length === 0) return true;
@@ -223,10 +224,11 @@ function FilterCharaDic(wfData: CharacterDictionary, filter: FilterOptions): Cha
     if (!filter.job) return true;
 
     const keyarr: Record<string, string> = {};
-    const keys = ['格斗', '剑士', '射击', '辅助', '特殊'];
+    const keys = ['格斗', '剑士', '射击', '辅助', '特殊'] as const;
     for (let i = 0; i < filter.job.length && i < keys.length; i++) {
-      if (filter.job[i] && keys[i]) {
-        keyarr[keys[i]] = "";
+      const key = keys[i];
+      if (filter.job[i] && key) {
+        keyarr[key] = "";
       }
     }
     if (Object.keys(keyarr).length === 0) return true;
@@ -277,10 +279,11 @@ function FilterEquipDic(eqData: EquipmentDictionary, filter: FilterOptions): Equ
    */
   function checkType(ele: Equipment): boolean {
     const keyarr: Record<string, string> = {};
-    const keys = ['火', '水', '雷', '风', '光', '暗'];
+    const keys = ['火', '水', '雷', '风', '光', '暗'] as const;
     for (let i = 0; i < filter.type.length && i < keys.length; i++) {
-      if (filter.type[i] && keys[i]) {
-        keyarr[keys[i]] = "";
+      const key = keys[i];
+      if (filter.type[i] && key) {
+        keyarr[key] = "";
       }
     }
     if (Object.keys(keyarr).length === 0) return true;

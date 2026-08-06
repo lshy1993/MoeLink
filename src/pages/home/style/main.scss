@@ -1,0 +1,475 @@
+@charset "utf-8";
+/* CSS Document */
+/*预设参数*/
+html, body {
+	height: 100%;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+	color: #333;
+	font-family: "Microsoft YaHei", 微软雅黑, Lucida Grade;
+}
+blockquote, div, dl, dt, dd,
+h1, h2, h3, h4, h5, h6,
+ol, ul, li, p, pre, span, td, th,
+article, aside, canvas, details, figcaption, figure, header,
+footer,hgroup, menu, nav, section, summary, audio, video {
+	margin: 0;
+	padding: 0;
+}
+ol, ul {
+	list-style: none;
+}
+
+/*选中色*/
+::selection {
+	color: #FF6178;
+	background: #FFE1EC;;
+}
+::-moz-selection {
+	color: #FF6178;
+	background: #FFE1EC;;
+}
+
+/*清除浮动*/
+.clearfix { zoom: 1; }
+.clearfix:before, .clearfix:after {
+	content: "";
+	display: table;
+	overflow: hidden;
+}
+.clearfix:after { clear: both; }
+
+/*背景图片*/
+#bg {
+	display: none;
+	z-index: -999;
+}
+	.mc-hide-scrolls{ overflow: hidden; }
+	.mc-cycle {
+		height: 100%;
+		left: 0;
+		overflow: hidden;
+		position: fixed;
+		top: 0;
+		width: 100%;
+	}
+	.mc-image {
+		background-size: cover;
+		-moz-background-size: cover;
+		background-attachment: fixed;
+		background-position :center center;
+		background-repeat: no-repeat;
+		height: 100%;
+		width: 100%;
+	}
+	
+/*全网页特效*/
+#globalEffect{
+	position: relative;
+	width: 100%;
+	min-width: 900px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	display: none;
+}
+
+/*侧边导航栏*/
+#sideNavEffect{
+	position: fixed;
+	_position: absolute;
+	left: -960px;
+	top: 0;
+	width: 1000px;
+	z-index: 999;
+}
+#sideNav{
+	height: 640px;
+	background: url(../img/globalNavBg.png);
+}
+	#sideNav h1 {
+		position: absolute;
+		right: 60px;
+		top: 20px;
+	}
+		#sideNav h1 a { display: block; }
+		#sideNav h1 a:hover { opacity: 0.6; }
+#sideNavMenu {
+	position: absolute;
+	right: 60px;
+	top: 140px;
+	font-size: 14px;
+}
+	.sideList li {
+		position: relative;
+		list-style-type: none;
+	}
+		.sideList li a {
+			width: 160px;
+			margin: 10px;
+			padding: 6px;
+			display: block;
+			color: #000;
+			text-decoration:none;
+		}
+		.sideList li a:hover{
+			background: #3CF;
+			opacity: 0.7;
+		}
+	.subNav {
+		display: none;
+		list-style-type: none;
+	}
+		.subNav li {
+			position: relative;
+		}
+			.subNav li a {
+				margin: auto;
+				width: 90px;
+				display: block;
+				color: #000;
+				text-decoration: none;
+			}
+			.subNav li a:hover {
+				background: #3F9;
+				opacity: 0.7;
+			}
+/*首页标语*/
+#sloganBox {
+	positon: relative;
+	min-height: 200px;
+	color: #000;
+}
+#indexPostBig {
+	position: relative;
+	left: 200px;
+	width: 400px;
+	font-size: 32px;
+}
+	#indexPostBig p {
+		margin-bottom: 16px;
+		opacity: 0;
+	}
+#topSlogan-01 { text-align: left;}
+#topSlogan-02 { text-align: right;}
+#indexPostSmall {
+	position: relative;
+	left: 640px;
+	top: 10px;
+	width: 220px;
+	font-size: 24px;
+}
+	#indexPostSmall p {
+		text-align: left;
+		margin-bottom: 12px;
+		opacity: 0;
+	}
+/*首页信息框*/
+#indexUpdateInfo {
+	position: relative;
+	padding-top : 200px;
+	width: 720px!important;
+	margin:0 auto;
+	color: #fff;
+}
+	.topUpdateInfoWrapper { width: 720px!important; }
+#infoControlPrev {
+	position: absolute;
+	left: 0;
+	bottom: 50px;
+	z-index: 998;
+}
+#infoControlPrev a { background: url(../img/arrow.png) 0 0; }
+#infoControlPrev a:hover { background-position: left -70px; }
+#infoControlNext {
+	position: absolute;
+	right: 0;
+	bottom: 50px;
+	z-index: 998;
+}
+#infoControlNext a { background: url(../img/arrow.png) right 0; }
+#infoControlNext a:hover { background-position: right -70px; }
+	.browse {
+		width: 30px;
+		height: 70px;
+		display: block;
+		cursor: pointer;
+	}
+#topUpdateInfo {
+	/*background: url(../img/topUpdateInfoBg.png) repeat;*/
+	background: rgba(0, 0, 0, 0.6);
+	padding: 10px 35px;
+	height: 150px!important;
+}
+	.topUpdateInfoList {
+		/*position: relative;*/
+		float: left;
+		width: 720px;
+		font-size: 14px;
+		text-align: left;
+		padding-left: 40px;
+		padding-top: 15px;
+	}
+		.topUpdateInfoList dt {
+			float: left;
+			padding-left: 25px;
+		}
+		.topUpdateInfoList .new { background: url(../img/new.png) no-repeat 0 2px; }
+		.topUpdateInfoList dd {
+			margin: 0 0 0 130px;
+			padding-right: 35px;
+			padding-bottom: 8px;
+			/*line-height: 1.8em;*/
+		}
+			.topUpdateInfoList dd a { color: #69F; }
+			.topUpdateInfoList dd a:hover { text-decoration: underline; }
+/*正文-通用设定*/
+#contentEffect {
+	width: 100%;
+	padding-bottom: 80px;
+}
+#mainContent {
+	width: 1000px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto;
+	padding: 30px 0 10px;
+	text-align: left;
+}
+#contentList {
+	margin: 5px 10px 15px;
+	padding-left: 0;
+	padding-bottom: 5px;
+	border-bottom: 1px #999 dotted;
+	list-style: none;
+}
+	#contentList li {
+		float: left;
+		padding-left: 20px;
+		background: url(../img/contentListBg.png) no-repeat 9px 6px;
+	}
+		#contentList li a {
+			color: #69F;
+			text-decoration: underline;
+		}
+		#contentList li a:hover { text-decoration: none; }
+		
+/*PAGETOP*/
+.pageTopLink {
+	clear: both;
+	position: relative;
+	padding: 15px 0 15px 0;
+	text-align: right;
+	/*background: url(/img/kotenbu/pageTopLinkBorder.png) no-repeat right 0;*/
+}
+	.pageTopLink a {
+		position: absolute;
+		right: 30px;
+		top: 7px;
+		display: block;
+		width: 200px;
+		color: #69F;
+		text-decoration: underline;
+		border-top: 2px #333 dotted;
+	}
+	.pageTopLink a:hover {
+		color: #333;
+		text-decoration: none;
+	}
+		
+
+
+
+		
+/*友情链接页面*/
+.partnerLink {
+	margin-bottom: 30px;
+	padding: 5px 10px 0;
+	background: url(../img/newsArticleBg.png) repeat;
+	background: rgba(255, 255, 255, 0.4);
+}
+	.partnerLink a {
+		color: #69F;
+		text-decoration: underline;
+	}
+	.partnerLink a:hover {
+		text-decoration: none;
+	}
+	.partnerLink h3 {
+		padding: 10px 0 8px 3px;
+		font-size: 18px;
+		border-bottom: 2px #333 solid;
+	}
+	.partnerLink h4 {
+		text-align: left;
+		margin: 10px 0 10px 10px;
+		padding-left: 5px;
+		font-size: 16px;
+		border-left: 3px #69F solid;
+	}
+	.partnerLink aside {
+		padding: 5px 5px 10px 0;
+		text-align: right;
+	}
+	.partnerLink ul {
+		padding: 10px 30px;
+		text-align: left;
+		font-size: 14px;
+	}
+		.partnerLink ul li { line-height: 1.8em; }
+
+/*联系方式页面*/
+#contractMe {
+	margin-bottom: 30px;
+	/*margin: 20px 10px 30px 10px;*/
+	padding: 5px 10px 0;
+	background: url(../img/newsArticleBg.png) repeat;
+	background: rgba(255, 255, 255, 0.4);
+}
+	#contractMe h3 {
+		padding: 10px 0 8px 3px;
+		font-size: 18px;
+		border-bottom: 2px #333 solid;
+	}
+	#contractMe h4 {
+		text-align: left;
+		margin: 10px 0 10px 10px;
+		padding-left: 5px;
+		font-size: 16px;
+		border-left: 3px #69F solid;
+	}
+	#contractMe aside {
+		padding: 5px 5px 10px 0;
+		text-align: right;
+	}
+	#contractMe ul {
+		padding: 10px 30px;
+		text-align: left;
+		font-size: 14px;
+	}
+		#contractMe ul li {
+			display: block;
+			padding: 5px;
+		}
+		#contractMe ul li a {
+			float: left;
+			height: 32px;
+			color: #69F;
+			text-decoration: none;
+		}
+		#contractMe ul li a p {
+			padding: 6px 10px 8px;
+		}
+		
+/*项目与作品*/
+.projectList {
+	padding: 5px 10px;
+	background: url(../img/newsArticleBg.png) repeat;
+	background: rgba(255, 255, 255, 0.4);
+}
+#caption {
+	text-align: right;
+	font-size: 36px;
+}
+#gameSelect {
+	float: left;
+	width: 180px;
+	padding-top: 10px;
+}
+	#gameSelect ul {
+		list-style-tyoe: none;
+		font-size: 14px;
+	}
+		#gameSelect ul li a {
+			color: #6E6E6E;
+			display: block;
+			padding-left: 10px;
+			text-decoration: none;
+		}
+		#gameSelect ul > li > a:hover, #gameSelect ul > li > .current {
+			color: #69F;
+			background: url(../img/gameSelect.png) no-repeat 0 4px;
+		}
+
+#gameInfo {
+	float: left;
+	width: 780px;
+}
+.gameType {
+	border-bottom: 1px #69F solid;
+	line-height: 27px;
+	text-align: left;
+}
+.gameNothing {
+	list-style-type: none;
+	padding:20px 20px;
+}
+	.gameNothing p {
+		margin: 5px;
+	}
+	.gameNothing a {
+		color: #69F;
+		text-decoration: underline;
+	}
+	.gameNothing a:hover {
+		text-decoration: none;
+	}
+.gameDetail {
+	padding-bottom: 20px;
+}
+	.gameDetail h3 {
+		margin: 10px 0 5px;
+		font-size: 16px;
+		color: #69F;
+	}
+	.gameDetail ul li {
+		float: left;
+	}
+.gamePic a {
+	display: block;
+	width: 200px;
+	height: 150px;
+	padding: 5px 5px;
+}
+.gameSum {
+	width: 560px;
+	height: 150px;
+	padding: 5px 5px;
+}
+	.gameSum p {
+		padding: 5px;
+	}
+		.gameSum p a {
+			color: #69F;
+			text-decoration: underline;
+		}
+		.gameSum p a:hover {
+			text-decoration: none;
+		}
+	
+/*黑幕*/
+#heimu {
+	background-color: #000;
+	color: #000;
+}
+/*浮动pagetop*/
+#pageTopWrap {
+	display: none;
+	position: fixed;
+	right: 60px;
+	bottom: 40px;
+	z-index: 99;
+}
+	#pageTopWrap a {
+		background: url(../img/topUpdateInfoBg.png) repeat;
+		padding: 10px 20px;
+		text-decoration: none;
+		color: #fff;
+	}
+	#pageTopWrap a:hover {
+		text-decoration: underline;
+		color: #69F;
+	}
