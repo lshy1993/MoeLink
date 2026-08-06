@@ -18,10 +18,34 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/alphasoul',
     name: 'alphasoul',
-    component: () => import('../pages/alphasoul/AlphaSoul.vue'),
-    beforeEnter(to, from, next) {
-      window.location.href = "https://alphasoul.moelink.site";
-    }
+    component: () => import('../pages/alphasoul/App.vue'),
+    children: [
+      {
+        path: '',
+        name: 'alphasoul-home',
+        component: () => import('../pages/alphasoul/Index.vue')
+      },
+      {
+        path: 'game',
+        name: 'alphasoul-game',
+        component: () => import('../pages/alphasoul/NetGame.vue')
+      },
+      {
+        path: 'auto',
+        name: 'alphasoul-auto',
+        component: () => import('../pages/alphasoul/NetWatcher.vue')
+      },
+      {
+        path: 'tool',
+        name: 'alphasoul-tool',
+        component: () => import('../pages/alphasoul/MajTool.vue')
+      },
+      {
+        path: 'test',
+        name: 'alphasoul-test',
+        component: () => import('../pages/alphasoul/MajCanvas.vue')
+      }
+    ]
   },
   {
     path: '/wfwiki',
