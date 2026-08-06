@@ -9,7 +9,7 @@ import 'element-plus/dist/index.css';
 import moment from 'moment';
 
 import data from './data';
-import func from './utils';
+// import func from './utils';
 import User from './types/User';
 
 import './style/animation.scss';
@@ -20,7 +20,7 @@ import './style/user.scss';
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     Common: any;
-    Func: any;
+    // Func: any;
     User: User;
     $moment: typeof moment;
   }
@@ -33,7 +33,7 @@ app.use(ElementPlus);
 
 // 挂载全局属性
 app.config.globalProperties.Common = data;
-app.config.globalProperties.Func = func;
+// app.config.globalProperties.Func = func;
 app.config.globalProperties.User = new User();
 app.config.globalProperties.$moment = moment;
 

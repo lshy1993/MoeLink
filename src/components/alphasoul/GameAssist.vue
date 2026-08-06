@@ -15,8 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-// @ts-ignore
-import { AI_Core } from '@/utils/alphajs/ai_core';
+import { AI_Core } from '@/utils/alphasoul/ai_core.js';
 
 export default defineComponent({
   name: 'GameAssist',
@@ -28,7 +27,7 @@ export default defineComponent({
   },
   data() {
     return {
-      ai: null as any,
+      ai: null as AI_Core | null,
     }
   },
   created() {

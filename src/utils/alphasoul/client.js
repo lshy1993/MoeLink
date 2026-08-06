@@ -1,6 +1,7 @@
 /* eslint-disable */
 // const CanvasDrawer = require('./drawcanvas.js').CanvasDrawer;
 // const CanvasDrawer = require('./webglcanvas.js').CanvasDrawer;
+import { GetWebSocketUrl } from '@/utils';
 
 class MajClient {
     constructor(canvas){
@@ -60,8 +61,7 @@ class MajClient {
 
     InitWebsocket(){
         var _self = this;
-        var wbAdress = process.env.NODE_ENV != 'development' ? 'ws://localhost:8182' : 'wss://moelink.site:8182';
-        //var wbAdress = 'wss://moelink.site:8182';
+       const wbAdress = GetWebSocketUrl();
         this.ws = new WebSocket(wbAdress);
         this.ws.onopen = function(){
             console.log("连接服务器成功");

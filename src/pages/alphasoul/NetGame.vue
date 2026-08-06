@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="preload" style="display:none;">
-      <link v-for="(pic, index) in preloadImgList()" :key="'pi' + index" rel="preload" :href="pic" as="image"
+      <link v-for="(pic, index) in preloadImgList()" :key="'pi' + index" rel="prefetch" :href="pic" as="image"
         type="image/png" />
       <link v-for="(file, index) in preloadVoiceList()" :key="'au' + index" rel="prefetch" :href="file" as="audio"
         type="audio/mpeg" />
@@ -235,6 +235,7 @@
 <script>
 import GameAssist from '@/components/alphasoul/GameAssist.vue';
 import FanTool from '@/utils/alphasoul/fan.js';
+import { GetWebSocketUrl } from '@/utils/index.ts';
 import { Howl } from 'howler';
 import * as TWEEN from '@tweenjs/tween.js';
 import async from 'async';
@@ -360,9 +361,7 @@ export default {
   methods: {
     reLink: function () {
       var _self = this;
-      var wbAdress = 'wss://ws.moelink.site';
-      // var wbAdress = process.env.NODE_ENV == 'development' ? 'wss://118.27.25.149:8181' : 'ws://ws.moelink.site/'; // ;
-      // console.log(wbAdress);
+      const wbAdress = GetWebSocketUrl();
       this.ws = new WebSocket(wbAdress);
       this.ws.onopen = function () {
         console.log("连接服务器成功");
@@ -515,7 +514,7 @@ export default {
       this.score[e.seat] -= 1000;
     },
     decode: function (e) {
-      console.log(e);
+      console.log('解析服务器消息', e);
       if (e.type == "ActionHule") {
         this.huList = e.data;
         this.huPos = 0;
@@ -540,6 +539,7 @@ export default {
         });
       }
       else if (e.type == 'ActionNewRound') {
+        console.log('新局开始');
         this.resetParam();
         // 初始起牌
         this.gameStatus.seat = e.seat;
@@ -767,7 +767,7 @@ export default {
     },
     sendOpt: function (obj) {
       //1切 2吃 3碰 4暗杠 5明杠 6加杠 7立直 8自摸 9胡 10九种 11拔北
-      console.log(obj);
+      console.log('玩家操作', obj);
       if (obj.type < 4 || obj.type == 5) {
         this.ws.send(JSON.stringify({
           type: 'chipenggang',

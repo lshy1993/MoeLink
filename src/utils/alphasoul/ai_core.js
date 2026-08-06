@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { TingJudger, PaiMaker, RonJudger, PtJudger } from '../alphajs/majtool.js';
+import { TingJudger, PaiMaker, RonJudger, PtJudger } from './majtool.js';
 
 class AI_Core {
   constructor() {

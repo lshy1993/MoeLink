@@ -63,6 +63,14 @@ function GetApi(path: string): string {
   return url + path;
 }
 
+function GetWebSocketUrl(): string {
+  const url = "ws://api.moelink.site";
+  if (import.meta.env.MODE === 'development') {
+    return "ws://localhost:8181";
+  }
+  return url;
+}
+
 /**
  * 创建POST请求配置对象
  * @param url 请求URL
@@ -301,6 +309,7 @@ function FilterEquipDic(eqData: EquipmentDictionary, filter: FilterOptions): Equ
 export {
   ranBG,
   GetApi,
+  GetWebSocketUrl,
   GetPostObject,
   GetGetObject,
   cryptPwd,
@@ -318,17 +327,4 @@ export type {
   Equipment,
   CharacterDictionary,
   EquipmentDictionary
-};
-
-// 默认导出（保持向后兼容）
-export default {
-  ranBG,
-  GetApi,
-  GetPostObject,
-  GetGetObject,
-  cryptPwd,
-  sha256,
-  md5,
-  FilterCharaDic,
-  FilterEquipDic
 };

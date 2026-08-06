@@ -101,35 +101,37 @@
         切牌提示
       </div>
       <table>
-        <tr>
-          <th style="width:60px">切牌</th>
-          <th style="width:50px;min-width:20px;">向听</th>
-          <th style="min-width:200px;">进张（听牌）</th>
-          <th style="width:100px;min-width:50px">牌效<sup>*1</sup></th>
-          <th style="width:100px;min-width:50px">牌重<sup>*2</sup></th>
-          <th style="width:100px;min-width:50px">得分<sup>*3</sup></th>
-        </tr>
-        <tr v-for="(list, index) in resShow"
-          :style="list[1] > n_xiangting ? 'background:rgba(224,54,54,0.5)' : 'background:rgba(159, 240, 72,' + normalized[list[0]] + ')'"
-          :key="index">
-          <td>
-            <div class="PaiDivS">
-              <img :src="imgUrl(list[0])" />
-            </div>
-          </td>
-          <td>{{ list[1] }}</td>
-          <td class="PaiList">
-            <div v-for="(pcode, ind) in list[2]" :key="ind" style="display:inline-block;">
+        <tbody>
+          <tr>
+            <th style="width:60px">切牌</th>
+            <th style="width:50px;min-width:20px;">向听</th>
+            <th style="min-width:200px;">进张（听牌）</th>
+            <th style="width:100px;min-width:50px">牌效<sup>*1</sup></th>
+            <th style="width:100px;min-width:50px">牌重<sup>*2</sup></th>
+            <th style="width:100px;min-width:50px">得分<sup>*3</sup></th>
+          </tr>
+          <tr v-for="(list, index) in resShow"
+            :style="list[1] > n_xiangting ? 'background:rgba(224,54,54,0.5)' : 'background:rgba(159, 240, 72,' + normalized[list[0]] + ')'"
+            :key="index">
+            <td>
               <div class="PaiDivS">
-                <img :src="imgUrl(pcode)" />
+                <img :src="imgUrl(list[0])" />
               </div>
-              <div>×{{ paishu[pcode[1]][pcode[0]] }}</div>
-            </div>
-          </td>
-          <td>{{ Math.floor(list[3]) }}</td>
-          <td>{{ (list[3] - Math.floor(list[3])).toFixed(2) }}</td>
-          <td>{{ list[4] }}</td>
-        </tr>
+            </td>
+            <td>{{ list[1] }}</td>
+            <td class="PaiList">
+              <div v-for="(pcode, ind) in list[2]" :key="ind" style="display:inline-block;">
+                <div class="PaiDivS">
+                  <img :src="imgUrl(pcode)" />
+                </div>
+                <div>×{{ paishu[pcode[1]][pcode[0]] }}</div>
+              </div>
+            </td>
+            <td>{{ Math.floor(list[3]) }}</td>
+            <td>{{ (list[3] - Math.floor(list[3])).toFixed(2) }}</td>
+            <td>{{ list[4] }}</td>
+          </tr>
+        </tbody>
       </table>
       <div>(1: 进章总数</div>
       <div>(2: 牌的重要程度，越小越重要</div>
@@ -140,33 +142,35 @@
       <div style="background: skyblue; color:white;" class="BoxHead">{{ n_xiangting == 0 ? "听牌" : n_xiangting + "向听" }}
       </div>
       <table>
-        <tr>
-          <th style="min-width: 60px">{{ n_xiangting == 0 ? "听牌" : "进张" }}</th>
-          <th style="width: 80px;min-width:20px;">剩余</th>
-          <th style="width: 600px;min-width:200px;">{{ n_xiangting == 0 ? "和了形" : "进张形" }}</th>
-          <th style="min-width: 60px">点数</th>
-          <th style="min-width: 120px">番</th>
-        </tr>
-        <tr v-for="(list, index) in ting_res" :key="index">
-          <td>
-            <div class="PaiDivS">
-              <img :src="imgUrl(list[0])" />
-            </div>
-          </td>
-          <td>{{ list[1] }}</td>
-          <td class="PaiList">
-            <div v-for="(pcode, ind) in list[2]" :key="ind"
-              :class="['PaiDivS', ind == list[2].length - 1 ? 'Last' : '']">
-              <img :src="imgUrl(pcode)" />
-            </div>
-          </td>
-          <td>{{ list[3].defen }}</td>
-          <td>
-            <div>
-              <div v-for="(yaku, index) in list[3].hupai" :key="index">{{ yaku.name + ":" + yaku.fanshu }}</div>
-            </div>
-          </td>
-        </tr>
+        <tbody>
+          <tr>
+            <th style="min-width: 60px">{{ n_xiangting == 0 ? "听牌" : "进张" }}</th>
+            <th style="width: 80px;min-width:20px;">剩余</th>
+            <th style="width: 600px;min-width:200px;">{{ n_xiangting == 0 ? "和了形" : "进张形" }}</th>
+            <th style="min-width: 60px">点数</th>
+            <th style="min-width: 120px">番</th>
+          </tr>
+          <tr v-for="(list, index) in ting_res" :key="index">
+            <td>
+              <div class="PaiDivS">
+                <img :src="imgUrl(list[0])" />
+              </div>
+            </td>
+            <td>{{ list[1] }}</td>
+            <td class="PaiList">
+              <div v-for="(pcode, ind) in list[2]" :key="ind"
+                :class="['PaiDivS', ind == list[2].length - 1 ? 'Last' : '']">
+                <img :src="imgUrl(pcode)" />
+              </div>
+            </td>
+            <td>{{ list[3].defen }}</td>
+            <td>
+              <div>
+                <div v-for="(yaku, index) in list[3].hupai" :key="index">{{ yaku.name + ":" + yaku.fanshu }}</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -176,7 +180,6 @@
 /* eslint-disable */
 import { PaiMaker, TingJudger, PtJudger, RonJudger, MianziMaker } from '../../utils/alphasoul/majtool.js';
 import { AI_Core } from '../../utils/alphasoul/ai_core.js';
-import qs from 'qs';
 
 export default {
   name: 'MajMain',

@@ -34,7 +34,7 @@
             <img :src="headUrl(chara - 1)" width="100" height="100" />
           </div>
           <div style="color:white;">{{ ['AlphaSoul令和', 'AlphaSoul科学', 'AlphaSoul昭和', 'AlphaSoul玄学'][chara - 1]
-            }}
+          }}
           </div>
         </div>
         <!-- 手牌与副露 -->
@@ -175,6 +175,7 @@
 /* eslint-disable */
 import FanTool from '../../utils/alphasoul/fan.js';
 import { Howl, Howler } from 'howler';
+import { GetWebSocketUrl } from '@/utils/index.ts';
 import * as TWEEN from '@tweenjs/tween.js';
 import async from 'async';
 
@@ -252,7 +253,7 @@ export default {
   methods: {
     reLink: function () {
       var _self = this;
-      var wbAdress = process.env.NODE_ENV == 'development' ? 'ws://localhost:8182' : 'wss://liantui.moe:8182';
+      const wbAdress = GetWebSocketUrl();
       this.ws = new WebSocket(wbAdress);
       this.ws.onopen = function () {
         console.log("连接服务器成功");
