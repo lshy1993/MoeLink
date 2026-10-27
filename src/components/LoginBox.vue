@@ -2,10 +2,10 @@
     <div class="loginBox" @click.stop @mousedown.stop>
         <form class="loginForm" autocomplete="on">
             <div class="inputLine">
-                <label for="login-user">UserName</label>
-                <input id="login-user" type="text" v-model="username" :placeholder="loginHint.user" autocomplete="on"
+                <label for="login-email">Email</label>
+                <input id="login-email" type="email" v-model="email" :placeholder="loginHint.email" autocomplete="on"
                     @blur="checkUserOK()">
-                <span class="errMsg">{{ loginErrMsg.user }}</span>
+                <span class="errMsg">{{ loginErrMsg.email }}</span>
             </div>
             <div class="inputLine">
                 <label for="login-pwd">PassWord</label>
@@ -14,30 +14,33 @@
                 <span class="errMsg">{{ loginErrMsg.pwd }}</span>
             </div>
             <button type="button" class="btn-primary clickable" @click="handleLogin()">
-                <span>{{ username ? registerMode ? "注册" : "登录" : "注册 or 登录" }}</span>
+                <span>{{ email ? registerMode ? "注册" : "登录" : "注册 or 登录" }}</span>
             </button>
-            <div class="tipLine">开发组账号为:editor 密码123456</div>
-            <div class="tipLine">游客账号:guest 密码123456</div>
+            <div class="tipLine">统一账号同时适用于 MoeLink 与测试站</div>
+            <div class="tipLine">首次使用？输入邮箱与密码后将自动进入注册</div>
         </form>
     </div>
 </template>
 
 <script>
 /* eslint-disable */
+import { GetApi } from '@/utils';
+import axios from 'axios';
+
 export default {
     name: 'LoginBox',
     data() {
         return {
             registerMode: false,
             loginHint: {
-                user: '用户名',
+                email: '邮箱',
                 pwd: '密码'
             },
             loginErrMsg: {
-                user: '',
+                email: '',
                 pwd: ''
             },
-            username: '',
+            email: '',
             password: ''
         }
     },
@@ -49,23 +52,22 @@ export default {
     },
     methods: {
         checkUserOK() {
-            // 查询是否已经被注册
-            var data = { username: this.username };
-            let url = this.Func.GetApi('/user/usercheck');
-            this.$http.post(url, data).then((response) => {
-                this.registerMode = response.data;
+            // 查询邮箱是否已被注册：已注册 => 登录模式，未注册 => 注册模式
+            if (!this.email) return;
+            let url = GetApi('/user/usercheck');
+            axios.post(url, { email: this.email }).then((response) => {
+                this.registerMode = !(response.data && response.data.exists);
             }, (err) => {
                 console.log(err);
                 this.registerMode = false;
             });
         },
         handleLogin: function () {
-            if (this.checkUsername() && this.checkPassword()) {
+            if (this.checkEmail() && this.checkPassword()) {
                 var loginData = {
-                    username: this.username,
+                    email: this.email,
                     password: this.password
                 }
-                //console.log(loginData);
                 // 验证后将表单 emit 回上级
                 if (this.registerMode) {
                     this.$emit('signup', loginData);
@@ -74,23 +76,24 @@ export default {
                 }
             }
         },
-        checkUsername() {
-            // 检测用户名是否合法
-            if (!this.username) {
-                this.loginErrMsg.user = "用户名不能为空";
+        checkEmail() {
+            // 检测邮箱是否合法
+            this.loginErrMsg.email = '';
+            if (!this.email) {
+                this.loginErrMsg.email = "邮箱不能为空";
                 return false;
             }
-            if (this.username.length < 5) {
-                this.loginErrMsg.pwd = "用户名长度过小";
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+                this.loginErrMsg.email = "邮箱格式不正确";
                 return false;
             }
-            this.loginErrMsg.user = "";
             return true;
         },
         checkPassword() {
             // 登录模式不检测
             if (!this.registerMode) return true;
             // 检测密码是否合法
+            this.loginErrMsg.pwd = '';
             if (!this.password) {
                 this.loginErrMsg.pwd = "请输入密码";
                 return false;
@@ -99,7 +102,6 @@ export default {
                 this.loginErrMsg.pwd = "密码长度过小";
                 return false;
             }
-            this.loginErrMsg.pwd = "";
             return true;
         }
     }

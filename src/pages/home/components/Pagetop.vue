@@ -4,24 +4,35 @@
 </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
     name: 'PageTop',
     data(){
         return {
-            isTop: true
+            isTop: true,
+            timer: null as ReturnType<typeof setInterval> | null
+        }
+    },
+    beforeUnmount(){
+        if(this.timer != null){
+            clearInterval(this.timer);
         }
     },
     methods: {
         goTop(){
-            let self = this;
-            self.timer = setInterval(function(){
+            if(this.timer != null){
+                clearInterval(this.timer);
+            }
+            this.timer = setInterval(() => {
                 let osTop = document.documentElement.scrollTop || document.body.scrollTop;
                 let ispeed = Math.floor(-osTop / 5);
                 document.documentElement.scrollTop = document.body.scrollTop = osTop + ispeed;
-                self.isTop = true;
+                this.isTop = true;
                 if (osTop === 0) {
-                    clearInterval(self.timer);
+                    if (this.timer != null) {
+                        clearInterval(this.timer);
+                    }
+                    this.timer = null;
                 }
             },30)
         }

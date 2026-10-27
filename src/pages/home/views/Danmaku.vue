@@ -29,6 +29,8 @@
 
 <script>
 import moment from 'moment';
+import axios from 'axios';
+import func from '../js/func';
 export default {
     name: 'Danmaku',
     data(){
@@ -41,12 +43,11 @@ export default {
     },
     created(){
         this.getComments();
-        console.log(window.navigator);
     },
     methods: {
         getComments: function(){
-            var url = this.Func.GetApi('main/comment');
-            this.$http.get(url).then((response)=>{
+            var url = func.GetApi('main/comment');
+            axios.get(url).then((response)=>{
                 this.commentList = response.data;
             });
         },

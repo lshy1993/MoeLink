@@ -1,116 +1,113 @@
 <template>
-  <el-container style="position: fixed; height:100%; width:100%; border: 1px solid #eee;">
-    <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-      <el-menu :default-openeds="['1', '2']" @select="menuSelect">
-        <el-submenu index="1">
-          <template slot="title"><i class="el-icon-message"></i>用户管理</template>
-          <el-menu-item-group>
-            <el-menu-item index="1-1">用户一览</el-menu-item>
-            <el-menu-item index="1-2">邀请码管理</el-menu-item>
-          </el-menu-item-group>
-        </el-submenu>
-        <el-submenu index="2">
-          <template slot="title"><i class="el-icon-message"></i>商城管理</template>
-          <el-menu-item-group>
-            <el-menu-item index="2-1">商品一览</el-menu-item>
-            <el-menu-item index="2-2">订单管理</el-menu-item>
-          </el-menu-item-group>
-        </el-submenu>
-        <el-submenu index="3">
-          <template slot="title"><i class="el-icon-message"></i>文章管理</template>
-          <el-menu-item-group>
-            <el-menu-item index="3-1">文章一览</el-menu-item>
-          </el-menu-item-group>
-        </el-submenu>
+  <el-container class="adminLayout">
+    <el-aside width="200px">
+      <div class="adminTitle">MoeLink 管理</div>
+      <el-menu router :default-active="$route.path" class="adminMenu">
+        <el-menu-item index="/admin/users">
+          <span>👤 用户一览</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/blog">
+          <span>📝 博客管理</span>
+        </el-menu-item>
+        <el-menu-item index="/admin/shop">
+          <span>🛒 EC 管理（开发中）</span>
+        </el-menu-item>
       </el-menu>
+      <div class="adminUser">
+        <div>{{ User.info.nickname || User.info.email }}</div>
+        <button @click="logOut">退出登录</button>
+      </div>
     </el-aside>
-    <el-container>
-      <el-header style="text-align: right; font-size: 12px">
-        <el-dropdown>
-          <i class="el-icon-setting" style="margin-right: 15px"></i>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>查看</el-dropdown-item>
-            <el-dropdown-item>新增</el-dropdown-item>
-            <el-dropdown-item>删除</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-        <span>{{ User.uid }}</span>
-      </el-header>
-      <component v-bind:is="currentTabComponent"></component>
-    </el-container>
+    <el-main><router-view :user="user" /></el-main>
   </el-container>
 </template>
 
 <script>
-import UserList from './UserList.vue';
-import ItemList from './ItemList.vue';
-import CodeList from './CodeList.vue';
-import OrderList from './OrderList.vue';
+import { userInstance as User } from '@/types/User';
+import { ClearToken, GetToken } from '@/utils';
+import axios from 'axios';
+import { GetApi } from '@/utils';
+
 export default {
-  name: 'Admin',
+  name: 'AdminLayout',
+  props: ['user'],
   data() {
     return {
-      currentTab: 'user-list',
-      tabs: ['user-list', 'code-list', 'item-list', 'order-list'],
+      User
     }
   },
-  computed: {
-    currentTabComponent: function () {
-      return this.currentTab;
+  mounted() {
+    // 会话失效（token 过期 / 非管理员）时回到首页
+    if (!GetToken()) {
+      this.$router.replace('/');
+      return;
     }
-  },
-  created() {
-    if (!this.User || !this.User.group >= 100) {
-      console.log(this.User);
-      console.log("need admin login");
-      this.$router.push({ path: '/' });
-    }
+    this.checkAdmin();
   },
   methods: {
-    menuSelect(indexPath) {
-      let i = 0;
-      switch (indexPath) {
-        case "1-1":
-          i = 0;
-          break;
-        case "1-2":
-          i = 1;
-          break;
-        case "2-1":
-          i = 2;
-          break;
-        case "2-2":
-          i = 3;
-          break;
+    async checkAdmin() {
+      try {
+        await axios.get(GetApi('/admin/unified-users'), {
+          headers: { Authorization: `Bearer ${GetToken()}` },
+          params: { limit: 1 }
+        });
+      } catch (err) {
+        const status = err.response && err.response.status;
+        if (status === 401 || status === 403) {
+          this.$router.replace('/');
+        }
       }
-      this.changeTab(i);
     },
-    changeTab(i) {
-      this.currentTab = this.tabs[i];
-      console.log(this.currentTab);
+    async logOut() {
+      try {
+        await axios.post(GetApi('/user/logout'));
+      } catch (err) { /* ignore */ }
+      ClearToken();
+      User.Logout();
+      this.$router.replace('/');
     }
-  },
-  components: {
-    UserList,
-    ItemList,
-    CodeList,
-    OrderList
   }
 }
 </script>
 
-<style lang="scss">
-.el-header {
-  background-color: #B3C0D1;
-  color: #333;
-  line-height: 60px;
+<style lang="scss" scoped>
+.adminLayout {
+  min-height: 100vh;
 }
 
-.el-aside {
-  color: #333;
+.adminTitle {
+  padding: 18px 16px 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e77;
 }
 
-.el-main {
-  background-color: #FFF;
+.adminMenu {
+  border-right: none;
+}
+
+.adminUser {
+  margin-top: 30px;
+  padding: 16px;
+  font-size: 12px;
+  color: #8892b8;
+
+  div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  button {
+    margin-top: 8px;
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid #dcdfe6;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover { color: #409eff; border-color: #409eff; }
+  }
 }
 </style>

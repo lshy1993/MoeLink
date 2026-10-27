@@ -2,7 +2,7 @@
 <div class="section selfbox grid-container clearfixbox">
     <div class="picture-container grid-30 clearfix">
         <div class="icon128">
-            <img class="picture" src="static/images/head.jpg">
+            <img class="picture" src="https://luckymiao.site/static/images/head.jpg">
         </div>
     </div>
     <div class="grid-70 clearfix">

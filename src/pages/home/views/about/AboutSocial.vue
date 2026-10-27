@@ -18,11 +18,12 @@
 </template>
 
 <script>
+import CommonData from '../../js/data';
 export default {
     name: 'AboutSocial',
     data(){
         return{
-            snsList: this.Common.snsList
+            snsList: CommonData.snsList
         }
     }
 }

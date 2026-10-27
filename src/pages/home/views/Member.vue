@@ -12,7 +12,7 @@
             </aside>
             <div class="clearfixbox member">
                 <div class="clearfix icon128 memberhead">
-                    <img src="static/images/head-r.jpg" />
+                    <img src="https://luckymiao.site/static/images/head-r.jpg" />
                 </div>
                 <div class="clearfix memberintro">
                     <h4>幸运的路奇</h4>

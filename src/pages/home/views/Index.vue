@@ -40,20 +40,23 @@
         </div>
     </div>
     <div class="floatSu">
-        <img src="/static/images/fsu.jpg" />
+        <img src="https://luckymiao.site/static/images/fsu.jpg" />
     </div>
 </div>
 </template>
 
 <script>
 import '../style/index.scss';
-import QuickNews from '@components/QuickNews.vue';
+import axios from 'axios';
+import CommonData from '../js/data';
+import func from '../js/func';
+import QuickNews from '../components/QuickNews.vue';
 export default {
     name: 'Index',
     data(){
         return {
             newsList: [],
-            topBoxList: this.Common.topBoxList
+            topBoxList: CommonData.topBoxList
         }
     },
     created(){
@@ -61,11 +64,11 @@ export default {
     },
     methods:{
         getImageStyle(filename){
-            return "background-image:url(/static/images/"+filename+")"; 
+            return "background-image:url(https://luckymiao.site/static/images/"+filename+")"; 
         },
         getNewsList(){
-            var url = this.Func.GetApi("main/news");
-            this.$http.get(url).then((response)=>{
+            var url = func.GetApi("main/news");
+            axios.get(url).then((response)=>{
                 this.newsList = response.data;
             });
         }

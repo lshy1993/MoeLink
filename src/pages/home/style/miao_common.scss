@@ -1,0 +1,331 @@
+.miao-page {
+    font-family: "Source Sans Pro","Hiragino Sans GB","Microsoft Yahei",SimSun,Helvetica,Arial,Sans-serif;
+    background: #fed;
+    margin: 0;
+    overflow-x: hidden;
+
+    transition: all .3s;
+
+    &.hideScroll {
+        overflow: hidden;
+    }
+
+    blockquote, div, dl, dt, dd,
+    h1, h2, h3, h4, h5, h6,
+    ol, ul, li, p, pre, span, td, th, form,
+    article, aside, canvas, details, figcaption, figure, header,
+    footer,hgroup, menu, nav, section, summary, audio, video {
+        margin: 0;
+        padding: 0;
+    }
+    ol, ul {
+        list-style: none;
+    }
+
+    /*选中色*/
+    ::selection {
+        color: #FF6178;
+        background: #FFE1EC;;
+    }
+    ::-moz-selection {
+        color: #FF6178;
+        background: #FFE1EC;;
+    }
+
+    .inset-container {
+        position: relative;
+        margin: 0 auto;
+        max-width: 64em;
+        min-height: 100%;
+        height: auto;
+    }
+    
+    /*超链接无下划线*/
+    a {
+        color: black;
+        text-decoration:none;
+    }
+
+    /*黑幕*/
+    .heimu {
+        background-color: #000;
+        color: #000;
+        &:hover {
+            color: #fff;
+        }
+    }
+
+
+    /*正文-通用设定*/
+    .whitebox.header {
+        margin-top: 30px;
+    }
+    .whitebox {
+        //margin-top: 30px;
+        margin-bottom: 30px;
+        padding: 10px 10px !important;
+        display: inline-block;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        transition-duration: .5s;
+
+        a {
+            color: #69F;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .caption {
+            text-align: right;
+            font-size: 36px;
+        }
+
+        h2 {
+            display: block;
+            padding: 5px 10px;
+            font-size: 28px;
+            //line-height: 30px;
+        }
+
+        h3 {
+            padding: 10px 0 8px 3px;
+            font-size: 20px;
+            border-bottom: 2px #333 solid;
+        }
+
+        h4 {
+            //text-align: left;
+            margin: 10px 0 10px 10px;
+            padding-left: 5px;
+            font-size: 16px;
+            border-left: 3px #69F solid;
+        }
+        
+        aside {
+            padding: 5px 5px 10px 0;
+            text-align: right;
+            font-size: 12px;
+        }
+        
+        ul {
+            padding: 10px 30px;
+            text-align: left;
+            font-size: 14px;
+            
+            li {
+                line-height: 1.8em;
+            }
+        }
+
+        .leftselect {
+            width: 20%;
+            ul {
+                padding: 0;
+                list-style-type: none;
+                font-size: 14px;
+                li {
+                    color: #6E6E6E;
+                    display: block;
+                    padding-left: 10px;
+                    text-decoration: none;
+                }
+                li.tablist {
+                    text-transform: none;
+                    transition: color .1s ease-in 0s;
+                }
+                li.tablist:hover {
+                    color: #69F;
+                    //background: #6E6E6E;
+                }
+                li.current {
+                    color: #69F;
+                }
+            }
+        }
+        
+        .rightinfo {
+            width: 80%;
+        }
+
+    }
+
+    /*正文-通用设定*/
+    // #contentEffect {
+    //     width: 100%;
+    //     padding-bottom: 80px;
+    // }
+    // #mainContent {
+    //     //width: 1000px;
+    //     min-height: 100%;
+    //     height: 100% auto !important;
+    //     margin: 0 auto;
+    //     padding: 30px 0 10px;
+    //     text-align: left;
+
+    // }
+
+    // #contentList {
+    //     margin: 5px 10px 15px;
+    //     padding-left: 0;
+    //     padding-bottom: 5px;
+    //     border-bottom: 1px #999 dotted;
+    //     list-style: none;
+
+    //     li {
+    //         float: left;
+    //         padding-left: 20px;
+    //         //background: url(../img/contentListBg.png) no-repeat 9px 6px;
+    //         a {
+    //             color: #69F;
+    //             text-decoration: underline;
+    //         }
+    //         a:hover { text-decoration: none; }
+    //     }
+    // }
+		
+    /*PAGETOP*/
+    .pageTopLink {
+        clear: both;
+        position: relative;
+        padding: 15px 0 15px 0;
+        text-align: right;
+        
+        a {
+            position: absolute;
+            right: 30px;
+            top: 7px;
+            display: block;
+            width: 200px;
+            color: #69F;
+            text-decoration: underline;
+            border-top: 2px #333 dotted;
+        }
+        a:hover {
+            color: #333;
+            text-decoration: none;
+        }
+
+    }
+
+    /*清除浮动*/
+    .clearfixbox:after {
+        clear: both;
+        content: '';
+        display: block;
+    }
+
+    .clearfix{
+		float: left;
+    }
+    
+    .clickable {
+        cursor: pointer;
+    }
+        
+    .section {
+        box-shadow: 0 0 0.15em 0.15em rgba(0,0,0,.125);
+        margin: 1em 0;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .pagehead {
+        display: inline-block;
+        margin-top: 30px;
+        color: white;
+        background: transparent;
+        width: 100%;
+        text-align: center;
+        text-shadow: 0 0 3px #000;
+
+        h1{
+            font-size: 32px;
+        }
+
+        small{
+            font-size: 14px;
+        }
+    }
+    
+    .pointer {
+        cursor: pointer;
+    }
+
+    img {
+        width: 100%;
+    }
+    .tab-button {
+        padding: 6px 10px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border: 1px solid #ccc;
+        //cursor: pointer;
+        background: #f0f0f0;
+        margin-bottom: -1px;
+        margin-right: -1px;
+    }
+    .tab-button:hover {
+        background: #e0e0e0;
+    }
+    .tab-button.active {
+        background: #e0e0e0;
+    }
+    .tab {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .icon64 {
+        width: 64px;
+        height: 64px;
+    }
+    .icon48 {
+		width: 48px;
+		height: 48px;
+    }
+    .icon90{
+        width: 90px;
+        height: 90px;
+    }
+    .icon128{
+        width: 128px;
+        height: 128px;
+    }
+
+    time {
+        color: #98a6ad;
+    }
+
+
+
+}
+// 过渡动画（原 transition.scss）
+.miao-page {
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+
+.width-toggle-enter-active, .width-toggle-leave-active {
+    transition: width .5s;
+}
+.width-toggle-enter, .width-toggle-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    width: 100px;
+}
+.width-toggle-leave, .width-toggle-enter-to /* .fade-leave-active below version 2.1.8 */ {
+    width: 0px;
+}
+
+.ml-toggle-enter-active, .ml-toggle-leave-active {
+    transition: margin-left .5s;
+}
+.ml-toggle-enter, .ml-toggle-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    margin-left: 0;
+}
+
+}

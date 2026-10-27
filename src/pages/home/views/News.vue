@@ -22,7 +22,9 @@
 
 <script>
 import moment from 'moment';
-import PageTop from '@components/pagetop.vue';
+import axios from 'axios';
+import func from '../js/func';
+import PageTop from '../components/Pagetop.vue';
 
 export default {
     name: 'News',
@@ -36,8 +38,8 @@ export default {
     },
     methods:{
         getNewsList(){
-            var url = this.Func.GetApi("main/news");
-            this.$http.get(url).then((response)=>{
+            var url = func.GetApi("main/news");
+            axios.get(url).then((response)=>{
                 this.newsList = response.data;
             });
         },

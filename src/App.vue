@@ -5,20 +5,40 @@
         <span>{{ sideOn ? "→" : "←" }}</span>
       </div>
       <div class="naviWrap">
-        <div v-if="!userLogined">
-          <div>登陆后可使用更多功能</div>
-          <div class="naviLine"></div>
-          <div v-if="serverOn" class="loginBtn" @click="showLoginBox">登录</div>
-          <div v-if="!serverOn" class="loginBtn">服务器维护中</div>
-        </div>
-        <div v-if="userLogined">
-          <div>头像 用户信息</div>
-          <div class="naviLine"></div>
+        <div class="naviSection">
           <router-link class="naviLink" to="/">
             <div style="font-size: 24px;">MoeLink</div>
           </router-link>
           <div class="naviLine"></div>
-          <div class="loginBtn" @click="logOut">Logout</div>
+          <router-link class="naviLink" to="/threads"><div>讨论区</div></router-link>
+          <div class="naviLine"></div>
+          <router-link class="naviLink" to="/blog"><div>博客</div></router-link>
+          <div class="naviLine"></div>
+          <router-link class="naviLink" to="/shop"><div>EC 商城</div></router-link>
+        </div>
+        <div class="naviSection">
+          <a class="naviLink clickable" :href="quizUrl" target="_blank" rel="noopener"><div>测试站 ↗</div></a>
+          <div class="naviLine"></div>
+          <router-link class="naviLink" to="/alphasoul"><div>AlphaSoul</div></router-link>
+          <div class="naviLine"></div>
+          <router-link class="naviLink" to="/miao"><div>小屋</div></router-link>
+        </div>
+        <div class="naviSection" v-if="adminVisible">
+          <router-link class="naviLink" to="/admin"><div>管理后台</div></router-link>
+        </div>
+        <div class="naviSection" style="margin-top: 30px">
+          <div v-if="!userLogined">
+            <div class="loginBtn" v-if="serverOn" @click="showLoginBox">登录 / 注册</div>
+            <div class="loginBtn" v-else>服务器维护中</div>
+          </div>
+          <div v-if="userLogined">
+            <div class="naviUser">
+              <div class="naviUserNick">{{ user.userinfo.nickname || user.userinfo.email }}</div>
+              <div class="naviUserMail">{{ user.userinfo.email }}</div>
+            </div>
+            <div class="naviLine"></div>
+            <div class="loginBtn" @click="logOut">登出</div>
+          </div>
         </div>
       </div>
     </aside>
@@ -31,8 +51,8 @@
 
 <script>
 import axios from 'axios';
-import moment from 'moment';
-import { GetApi, cryptPwd } from '@/utils'; // 路径根据你的实际位置调整
+import { GetApi, SaveToken, ClearToken, GetToken } from '@/utils'; // 路径根据你的实际位置调整
+import { userInstance as User } from '@/types/User';
 import loginBox from '@/components/LoginBox.vue';
 export default {
   name: 'app',
@@ -42,6 +62,8 @@ export default {
       loginOn: false,
       sideOn: false,
       serverOn: false,
+      quizUrl: import.meta.env.DEV ? 'http://localhost:3000'
+        : (import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site'),
       user: {
         userinfo: {},
         logined: false
@@ -51,6 +73,9 @@ export default {
   computed: {
     userLogined() {
       return this.user.logined;
+    },
+    adminVisible() {
+      return this.user.userinfo && this.user.userinfo.group >= 100;
     },
   },
   created() {
@@ -82,22 +107,23 @@ export default {
       document.body.classList = [this.loginOn ? "hideScroll" : ""];
     },
     async initLoginStatus() {
-      const validtime = localStorage.getItem("validtime");
-      if (!validtime || moment().isAfter(validtime)) {
-        // 不存在或超时 需要重新登录
+      // 无 token 时直接回到未登录态
+      if (!GetToken()) {
         this.removeUserInfo();
         return;
       }
       try {
-        // 在时间内 检测session状态
+        // 通过 Authorization 头检测会话是否仍有效
         const url = GetApi('/user/session')
         const response = await axios.post(url);
-        if (response.data === 'valid') {
-          // 直接设置已登录
-          //console.log(response.data);
+        if (response.data && response.data.userInfo) {
+          this.user.userinfo = response.data.userInfo;
           this.openUserPanel();
+          // 同步全局 User（router 管理员守卫使用）
+          User.Init(response.data.userInfo);
         } else {
           console.log(response.data);
+          this.removeUserInfo();
         }
       } catch (err) {
         // 需要重新登录
@@ -108,56 +134,58 @@ export default {
       try {
         const url = GetApi('/user/info');
         const response = await axios.post(url);
-        console.log(response.data);
-        // 设置用户信息
-        // this.user = response.data;
+        if (response.data && response.data.userInfo) {
+          this.user.userinfo = response.data.userInfo;
+        }
       } catch (err) {
         console.error('获取用户信息失败', err);
       }
     },
     async logIn(formdata) {
-      const loginform = {
-        username: formdata.username,
-        password: cryptPwd(formdata.password)
-      }
       try {
-        const response = await axios.post('api/user/login', loginform);
-        this.loginDone();
+        const response = await axios.post(GetApi('/user/login'), {
+          email: formdata.email,
+          password: formdata.password
+        });
+        const { token, userInfo } = response.data;
+        if (!token) throw new Error('登录响应缺少 token');
+        this.user.userinfo = userInfo || {};
+        User.Init(userInfo || {});
+        this.openUserPanel();
+        // 令牌与用户信息落本地（session 有效期由 JWT exp 决定）
+        SaveToken(token);
+        this.getUserInfo();
+        const page = this.$refs.mainPage;
+        if (page && page.loginDone) page.loginDone();
       } catch (err) {
-        this.loginError();
+        console.error('登录失败', err);
+        alert('登录失败：邮箱或密码错误');
       }
-    },
-    loginDone() {
-      // 将用户信息保存localstorage
-      localStorage.setItem('validtime', moment().add(7, 'd').format());
-      this.getUserInfo();
-      this.openUserPanel();
-      this.$refs.mainPage.loginDone();
-    },
-    loginError() {
-      // 失败部分
-      alert('密码错误');
     },
     async signUp(formdata) {
-      const signupform = {
-        username: formdata.username,
-        password: cryptPwd(formdata.password)
-      }
       try {
         const url = GetApi('/user/signup');
-        const response = await axios.post(url, signupform);
-        if (response.status !== 200) {
-          throw new Error('注册失败');
-        }
-        this.closeLoginBox();
+        const response = await axios.post(url, {
+          email: formdata.email,
+          password: formdata.password
+        });
+        const { token, userInfo } = response.data;
+        if (!token) throw new Error('注册响应缺少 token');
+        // 注册成功即自动登录，同一账号在 MoeLink 与测试站通用
+        SaveToken(token);
+        this.user.userinfo = userInfo || {};
+        User.Init(userInfo || {});
+        this.openUserPanel();
+        this.getUserInfo();
       } catch (err) {
         console.error('注册失败', err);
+        alert('注册失败：该邮箱可能已被占用');
       }
     },
     async logOut() {
       try {
         const url = GetApi('/user/logout');
-        const response = await axios.post(url);
+        await axios.post(url);
       } catch (err) {
         console.error('登出失败', err);
       }
@@ -165,9 +193,9 @@ export default {
     },
     removeUserInfo() {
       this.user.logined = false;
-      localStorage.removeItem('validtime');
-      // localStorage.removeItem('user');
-      // localStorage.removeItem('pwd');
+      this.user.userinfo = {};
+      ClearToken();
+      User.Logout();
     }
   },
   components: {

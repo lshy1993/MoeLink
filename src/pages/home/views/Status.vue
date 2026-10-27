@@ -16,39 +16,46 @@
         </div>
         <button type="button" @click="onTimer">aaaaa</button>
         <div class="section identity-category grid-container">
-            <v-chart :options="option_mem"/>
-            <v-chart :options="option_cpu"/>
+            <v-chart :option="option_mem"/>
+            <v-chart :option="option_cpu"/>
         </div>
     </div>
 </div>
 </template>
 
-<script>
-import ECharts from 'vue-echarts'
-import 'echarts/lib/chart/line'
-import 'echarts/lib/component/tooltip';
-import 'echarts/lib/component/title';
+<script lang="ts">
+import { use } from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { LineChart } from 'echarts/charts';
+import { TooltipComponent, TitleComponent } from 'echarts/components';
+import VChart from 'vue-echarts';
 
+import axios from 'axios';
+import CommonData from '../js/data';
+import func from '../js/func';
 import chartOpt from '../js/charts.js'
 import '../style/about.scss';
+
+// 更新图表数据
+use([CanvasRenderer, LineChart, TooltipComponent, TitleComponent]);
 
 export default {
     name: 'Status',
     data(){
         return {
-            timer: null,
-            statusList: this.Common.stateCheckList,
+            timer: null as ReturnType<typeof setInterval> | null,
+            statusList: CommonData.stateCheckList,
             serverMem: {
                 total: 0,
                 used: 0,
                 ratio: 0
             },
             serverCpu: {},
-            date: [],
-            mems: [],
-            cpus: [[],[],[],[]],
-            option_mem: chartOpt.option_mem,
-            option_cpu: chartOpt.option_cpu
+            date: [] as string[],
+            mems: [] as number[],
+            cpus: [[],[],[],[]] as any,
+            option_mem: chartOpt.option_mem as any,
+            option_cpu: chartOpt.option_cpu as any
         }
     },
     mounted(){
@@ -57,15 +64,24 @@ export default {
     watch:{
 
     },
+    components:{
+        'v-chart': VChart
+    },
+    beforeUnmount(){
+        if(this.timer != null){
+            clearInterval(this.timer);
+        }
+    },
     methods: {
-        getState: function(key){
+        getState: function(key: number){
             return key;
         },
         onTimer: function(){
             if(this.timer == null){
                 this.timer = setInterval(this.getMem, 1000);
             }else{
-                clearInterval(this.getMem);
+                clearInterval(this.timer);
+                this.timer = null;
             }
             
         },
@@ -75,8 +91,8 @@ export default {
                 this.date.shift();
             }
             this.date.push([now.getHours(), now.getMinutes(), now.getSeconds()].join(':'));
-            var url1 = this.Func.GetApi("status/mem");
-            this.$http.get(url1).then((response)=>{
+            var url1 = func.GetApi("status/mem");
+            axios.get(url1).then((response)=>{
                 this.serverMem = response.data;
                 if(this.mems.length >= 30){
                     this.mems.shift();
@@ -84,17 +100,14 @@ export default {
                 this.mems.push(response.data.ratio);
                 this.setMemBar();
             });
-            var url2 = this.Func.GetApi("status/cpus");
-            this.$http.get(url2).then((response)=>{
+            var url2 = func.GetApi("status/cpus");
+            axios.get(url2).then((response)=>{
                 let cpus = response.data;
                 for(var i = 0, len = cpus.length; i < len; i++) {
                     var cpu = cpus[i], total = 0;
                     for(var type in cpu.times) {
                         total += cpu.times[type];
                     }
-                    // for(type in cpu.times) {
-                    //     console.log("\t", type, Math.round(100 * cpu.times[type] / total));
-                    // }
                     let ratio = Math.round(100 * cpu.times.idle / total);
                     if(this.cpus[i].length >= 30){
                         this.cpus[i].shift();
@@ -113,9 +126,6 @@ export default {
             this.option_cpu.xAxis.data = this.date;
         }
 
-    },
-    components:{
-        'v-chart': ECharts
     }
 }
 </script>

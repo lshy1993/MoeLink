@@ -101,5 +101,8 @@ class User {
 
 export default User;
 
+// 全局单例：router 守卫与 globalProperties(User) 共用同一实例
+export const userInstance = new User();
+
 // 导出类型
 export type { UserInfo, UserInitData };

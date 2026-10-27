@@ -71,6 +71,39 @@ function GetWebSocketUrl(): string {
   return url;
 }
 
+// ── 统一用户系统 JWT（Bearer）── 存储在 localStorage，请求时自动附带
+const TOKEN_KEY = 'moelink_token';
+
+function GetToken(): string {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || '';
+  } catch (err) {
+    return '';
+  }
+}
+
+function SaveToken(token: string): void {
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch (err) {
+    /* ignore */
+  }
+}
+
+function ClearToken(): void {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('validtime'); // 旧版登录时间缓存
+  } catch (err) {
+    /* ignore */
+  }
+}
+
+function AuthorizationHeaders(): Record<string, string> {
+  const token = GetToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 /**
  * 创建POST请求配置对象
  * @param url 请求URL
@@ -82,6 +115,7 @@ function GetPostObject(url: string, data: Record<string, any>): HttpOptions {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      ...AuthorizationHeaders(),
     },
     withCredentials: false,
     data: qs.stringify(data),
@@ -101,41 +135,13 @@ function GetGetObject(url: string, data: Record<string, any>): HttpOptions {
     method: 'GET',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
+      ...AuthorizationHeaders(),
     },
     withCredentials: false,
     data: qs.stringify(data),
     url
   };
   return options;
-}
-
-/**
- * 加密密码
- * @param password 原始密码
- * @param salt 盐值，默认为 "kusuharaui"
- * @returns 加密后的密码
- */
-function cryptPwd(password: string, salt: string = "kusuharaui"): string {
-  // 加盐密码的md5值
-  const saltPassword = md5(password) + ':' + salt;
-  // 注意：这里简化了sha256的调用，实际项目中建议使用专门的加密库
-  const result = simpleHash(saltPassword);
-  return result;
-}
-
-/**
- * 简化的哈希函数
- * @param message 待哈希的消息
- * @returns 哈希值
- */
-function simpleHash(message: string): string {
-  let hash = 0;
-  for (let i = 0; i < message.length; i++) {
-    const char = message.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(16);
 }
 
 /**
@@ -312,7 +318,9 @@ export {
   GetWebSocketUrl,
   GetPostObject,
   GetGetObject,
-  cryptPwd,
+  GetToken,
+  SaveToken,
+  ClearToken,
   sha256,
   md5,
   FilterCharaDic,

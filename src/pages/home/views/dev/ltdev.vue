@@ -11,8 +11,8 @@
         <div class="ltdevcontent clearfixbox">
             <div class="routebox clearfix" v-for="(ele,key) in croutes" :key="key">
                 <div class="routehead">
-                    <span v-if="!Common.editor" class="routename" :style="{'color':ele.color}">{{'事件'+key}}</span>
-                    <span v-if="Common.editor" class="routename" :style="{'color':ele.color}">{{ ele.routename }}</span>
+                    <span v-if="!CommonData.editor" class="routename" :style="{'color':ele.color}">{{'事件'+key}}</span>
+                    <span v-if="CommonData.editor" class="routename" :style="{'color':ele.color}">{{ ele.routename }}</span>
                     <span class="progress">{{ getProgress(ele.chapter) }}</span>
                 </div>
                 <div class="event" v-for="(ch,index) in ele.chapter" :key="index">
@@ -31,13 +31,14 @@
 </template>
 
 <script>
-import PageTop from '@components/pagetop.vue';
+import PageTop from '../../components/Pagetop.vue';
+import CommonData from '../../js/data';
 
 export default {
     name: 'ltdev',
     data(){
         return {
-            croutes: this.Common.ltRoute,
+            croutes: CommonData.ltRoute,
         }
     },
     methods: {

@@ -48,11 +48,12 @@
 </template>
 
 <script>
+import CommonData from '../../js/data';
 export default {
     name: 'AboutGame',
     data(){
         return {
-            gameList2: this.Common.gameIdList
+            gameList2: CommonData.gameIdList
         }
     }
 }

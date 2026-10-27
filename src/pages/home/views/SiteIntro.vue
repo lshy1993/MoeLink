@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import PageTop from '@components/pagetop.vue';
+import PageTop from '../components/Pagetop.vue';
 
 export default {
     name: 'SiteIntro',

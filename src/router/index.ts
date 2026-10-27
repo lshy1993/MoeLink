@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-// import User from '../js/user.js';
+import { userInstance as User } from '../types/User';
 
 // 扩展路由记录类型
 declare module 'vue-router' {
   interface RouteMeta {
-    requiresAuth?: boolean;
     requiresAdmin?: boolean;
   }
 }
@@ -12,8 +11,28 @@ declare module 'vue-router' {
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'navi',
-    component: () => import('../pages/Navi.vue')
+    name: 'home',
+    component: () => import('../pages/Home.vue')
+  },
+  {
+    path: '/blog',
+    name: 'blog',
+    component: () => import('../pages/blog/BlogList.vue')
+  },
+  {
+    path: '/blog/:id(\\d+)',
+    name: 'blog-detail',
+    component: () => import('../pages/blog/BlogDetail.vue')
+  },
+  {
+    path: '/threads',
+    name: 'threads',
+    component: () => import('../pages/threads/Threads.vue')
+  },
+  {
+    path: '/shop',
+    name: 'shop',
+    component: () => import('../pages/shop/Shop.vue')
   },
   {
     path: '/alphasoul',
@@ -48,76 +67,75 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
-    path: '/wfwiki',
-    name: 'worldflipper',
-    component: () => import('../pages/wfwiki/WorldFlipper.vue'),
+    path: '/miao',
+    name: 'miao',
+    component: () => import('../pages/home/Miao.vue'),
     children: [
       {
         path: '',
-        name: 'wfwiki-home',
-        component: () => import('../pages/wfwiki/Index.vue')
+        name: 'miao-home',
+        component: () => import('../pages/home/views/Index.vue')
       },
       {
-        path: 'chara',
-        name: 'charalist',
-        component: () => import('../pages/wfwiki/chara/Character.vue')
+        path: 'about',
+        name: 'miao-about',
+        component: () => import('../pages/home/views/About.vue')
       },
       {
-        path: 'chara/:id',
-        name: 'chara',
-        component: () => import('../pages/wfwiki/chara/CharacterDetail.vue')
+        path: 'intro',
+        name: 'miao-intro',
+        component: () => import('../pages/home/views/SiteIntro.vue')
       },
       {
-        path: 'equip',
-        name: 'equiplist',
-        component: () => import('../pages/wfwiki/equip/Equipment.vue')
+        path: 'member',
+        name: 'miao-member',
+        component: () => import('../pages/home/views/Member.vue')
       },
       {
-        path: 'equip/:id',
-        name: 'equip',
-        component: () => import('../pages/wfwiki/equip/EquipmentDetail.vue')
+        path: 'download',
+        name: 'miao-download',
+        component: () => import('../pages/home/views/Download.vue')
       },
       {
-        path: 'simulator',
-        name: 'simulator-home',
-        component: () => import('../pages/wfwiki/simulator/Simulate.vue')
+        path: 'danmu',
+        name: 'miao-danmu',
+        component: () => import('../pages/home/views/Danmaku.vue')
       },
       {
-        path: 'simulator/:id',
-        name: 'simulator',
-        component: () => import('../pages/wfwiki/simulator/Simulate.vue')
+        path: 'news',
+        name: 'miao-news',
+        component: () => import('../pages/home/views/News.vue')
       },
       {
-        path: '/:pathMatch(.*)*',
-        name: 'wfwiki-404',
-        component: () => import('../pages/wfwiki/Building.vue')
+        path: 'works',
+        name: 'miao-works',
+        component: () => import('../pages/home/views/Works.vue')
+      },
+      {
+        path: 'dev',
+        name: 'miao-dev',
+        component: () => import('../pages/home/views/Plan.vue')
+      },
+      {
+        path: 'dev/:id',
+        name: 'miao-devpage',
+        component: () => import('../pages/home/views/dev/PlanPage.vue')
+      },
+      {
+        path: 'goods',
+        name: 'miao-goods',
+        component: () => import('../pages/home/views/Goods.vue')
+      },
+      {
+        path: 'link',
+        name: 'miao-link',
+        component: () => import('../pages/home/views/Link.vue')
+      },
+      {
+        path: 'status',
+        name: 'miao-status',
+        component: () => import('../pages/home/views/Status.vue')
       }
-    ]
-  },
-  {
-    path: '/evolve2',
-    name: 'evolve',
-    component: () => import('../pages/evolve/Evolve.vue')
-  },
-  {
-    path: '/pcrwiki',
-    name: 'pcrwiki',
-    component: () => import('../pages/pcrwiki/PcrWiki.vue'),
-    beforeEnter(to, from, next) {
-      window.location.href = "https://pcrwiki.moelink.site";
-    }
-  },
-  {
-    path: '/gbf',
-    name: 'gbf',
-    component: () => import('../pages/gbf/GranBlue.vue'),
-    children: [
-      {
-        path: '',
-        name: 'gbf-home',
-        component: () => import('../pages/gbf/Index.vue')
-      }
-      // { path: 'about', component: () => import('../pages/gbf/About.vue') }
     ]
   },
   {
@@ -127,24 +145,25 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAdmin: true },
     children: [
       {
-        path: 'itemlist',
-        component: () => import('../pages/admin/ItemList.vue')
+        path: '',
+        redirect: '/admin/users'
       },
       {
-        path: 'userlist',
-        component: () => import('../pages/admin/UserList.vue')
+        path: 'users',
+        name: 'admin-users',
+        component: () => import('../pages/admin/UserTable.vue')
+      },
+      {
+        path: 'blog',
+        name: 'admin-blog',
+        component: () => import('../pages/admin/BlogAdmin.vue')
+      },
+      {
+        path: 'shop',
+        name: 'admin-shop',
+        component: () => import('../pages/admin/ShopAdmin.vue')
       }
     ]
-  },
-  {
-    path: '/home',
-    name: 'home',
-    component: () => import('../pages/forums/Forums.vue')
-  },
-  {
-    path: '/res',
-    name: 'result',
-    component: () => import('../pages/forums/Result.vue')
   }
 ];
 
@@ -153,32 +172,14 @@ const router = createRouter({
   routes
 });
 
-// 路由守卫（目前注释掉，如需要可启用）
-// router.beforeEach((to, from, next) => {
-//   if (to.matched.some(record => record.meta?.requiresAuth)) {
-//     // 需要登录
-//     if (!User.logined) {
-//       console.log("need login");
-//       next({
-//         path: '/',
-//         // query: { redirect: to.fullPath }
-//       });
-//     } else {
-//       next();
-//     }
-//   } else if (to.matched.some(record => record.meta?.requiresAdmin)) {
-//     if (!(User.logined && User.group >= 100)) {
-//       console.log("need admin login");
-//       next({
-//         path: '/',
-//         // query: { redirect: to.fullPath }
-//       });
-//     } else {
-//       next();
-//     }
-//   } else {
-//     next();
-//   }
-// });
+// 路由守卫：admin 页需要登录且 group >= 100
+router.beforeEach((to) => {
+  if (to.meta.requiresAdmin) {
+    if (!(User.logined && User.isAdmin())) {
+      return { path: '/', query: { redirect: to.fullPath } };
+    }
+  }
+  return true;
+});
 
 export default router;

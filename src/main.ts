@@ -7,10 +7,10 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 
 import moment from 'moment';
+import axios from 'axios';
 
-import data from './data';
-// import func from './utils';
-import User from './types/User';
+import UserClass, { userInstance } from './types/User';
+import * as func from './utils';
 
 import './style/animation.scss';
 import './style/common.scss';
@@ -19,9 +19,9 @@ import './style/user.scss';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
-    Common: any;
-    // Func: any;
-    User: User;
+    Func: any;
+    $http: any;
+    User: UserClass;
     $moment: typeof moment;
   }
 }
@@ -32,9 +32,9 @@ app.use(router);
 app.use(ElementPlus);
 
 // 挂载全局属性
-app.config.globalProperties.Common = data;
-// app.config.globalProperties.Func = func;
-app.config.globalProperties.User = new User();
+app.config.globalProperties.Func = func;
+app.config.globalProperties.$http = axios;
+app.config.globalProperties.User = userInstance;
 app.config.globalProperties.$moment = moment;
 
 app.mount('#app');

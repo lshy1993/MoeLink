@@ -40,7 +40,7 @@ export default {
         padding-left: 25px;
         
         &.new {
-            background: url(/static/images/new.png) no-repeat 0 2px;
+            background: url(https://luckymiao.site/static/images/new.png) no-repeat 0 2px;
         }
     }
 
