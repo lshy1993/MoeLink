@@ -40,8 +40,8 @@
       <!-- EC 商城 -->
       <router-link class="card" to="/shop">
         <div class="cardHead"><span class="icon">🛒</span><h2>EC 商城</h2></div>
-        <p>周边与商品的购买入口。</p>
-        <div class="cardTag">规划中</div>
+        <p>用 MoeCoin 兑换周边与商品。</p>
+        <div class="cardTag">进入</div>
       </router-link>
 
       <!-- genshin quiz -->
@@ -69,8 +69,8 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { GetApi } from '@/utils';
+import axios from 'axios'
+import { GetApi } from '@/utils'
 
 export default {
   name: 'HomePage',
@@ -78,36 +78,39 @@ export default {
     return {
       posts: [],
       stats: null,
-      quizUrl: import.meta.env.DEV ? 'http://localhost:3000'
-        : (import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site')
+      quizUrl: import.meta.env.DEV
+        ? 'http://localhost:3000'
+        : import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site',
     }
   },
   mounted() {
-    this.loadBlog();
-    this.loadStats();
+    this.loadBlog()
+    this.loadStats()
   },
   methods: {
     async loadBlog() {
       try {
-        const res = await axios.get(GetApi('/blog/list'), { params: { limit: 3 } });
-        this.posts = res.data.posts || [];
+        const res = await axios.get(GetApi('/blog/list'), {
+          params: { limit: 3 },
+        })
+        this.posts = res.data.posts || []
       } catch (err) {
-        console.log('博客列表加载失败', err);
+        console.log('博客列表加载失败', err)
       }
     },
     async loadStats() {
       try {
-        const res = await axios.get(GetApi('/blog/stats'));
-        this.stats = res.data;
+        const res = await axios.get(GetApi('/blog/stats'))
+        this.stats = res.data
       } catch (err) {
-        console.log('站点统计加载失败', err);
+        console.log('站点统计加载失败', err)
       }
     },
     formatDate(d) {
-      if (!d) return '';
-      return new Date(d).toLocaleDateString('zh-CN');
-    }
-  }
+      if (!d) return ''
+      return new Date(d).toLocaleDateString('zh-CN')
+    },
+  },
 }
 </script>
 

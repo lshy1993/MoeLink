@@ -15,6 +15,10 @@ export const MOCOIN_TX_TYPES: Record<string, TxMeta> = {
   bounty_escrow: { label: '悬赏托管', severity: 'warn' },
   bounty_received: { label: '获得悬赏', severity: 'success' },
   bounty_refund: { label: '悬赏退回', severity: 'info' },
+  purchase: { label: '购买商品', severity: 'warn' },
+  sale: { label: '商品销售收入', severity: 'success' },
+  refund: { label: '订单退款', severity: 'info' },
+  refund_out: { label: '退款支出', severity: 'danger' },
   admin_grant: { label: '管理员发放', severity: 'info' },
   admin_deduct: { label: '管理员扣减', severity: 'danger' },
 }

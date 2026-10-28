@@ -50,6 +50,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../pages/shop/Shop.vue'),
   },
   {
+    path: '/shop/orders',
+    name: 'shop-orders',
+    component: () => import('../pages/shop/MyOrders.vue'),
+  },
+  {
+    path: '/shop/:id(\\d+)',
+    name: 'shop-detail',
+    component: () => import('../pages/shop/ProductDetail.vue'),
+  },
+  {
     path: '/alphasoul',
     name: 'alphasoul',
     component: () => import('../pages/alphasoul/App.vue'),
