@@ -1,6 +1,9 @@
 <template>
   <div class="shopAdminPage">
-    <el-empty description="EC 商城后台开发中（商品 / 订单管理将在此上线）" :image-size="120" />
+    <div class="emptyBox">
+      <div class="emptyIcon">🛒</div>
+      <p>EC 商城后台开发中（商品 / 订单管理将在此上线）</p>
+    </div>
   </div>
 </template>
 
@@ -17,6 +20,21 @@ export default {
   background: white;
   border: 1px solid #e6e9f5;
   border-radius: 10px;
-  padding: 40px 0;
+  padding: 60px 20px;
+}
+
+.emptyBox {
+  text-align: center;
+  color: #8892b8;
+
+  .emptyIcon {
+    font-size: 52px;
+    margin-bottom: 14px;
+    opacity: 0.6;
+  }
+
+  p {
+    margin: 0;
+  }
 }
 </style>

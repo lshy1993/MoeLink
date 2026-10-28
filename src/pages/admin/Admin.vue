@@ -1,28 +1,31 @@
 <template>
-  <el-container class="adminLayout">
-    <el-aside width="200px">
+  <div class="adminLayout">
+    <aside class="adminAside">
       <div class="adminTitle">MoeLink 管理</div>
-      <el-menu router :default-active="$route.path" class="adminMenu">
-        <el-menu-item index="/admin/users">
+      <nav class="adminMenu">
+        <router-link to="/admin/users" class="adminLink" :class="{ active: $route.path.indexOf('/admin/users') === 0 }">
           <span>👤 用户一览</span>
-        </el-menu-item>
-        <el-menu-item index="/admin/blog">
+        </router-link>
+        <router-link to="/admin/blog" class="adminLink" :class="{ active: $route.path.indexOf('/admin/blog') === 0 }">
           <span>📝 博客管理</span>
-        </el-menu-item>
-        <el-menu-item index="/admin/shop">
+        </router-link>
+        <router-link to="/admin/shop" class="adminLink" :class="{ active: $route.path.indexOf('/admin/shop') === 0 }">
           <span>🛒 EC 管理（开发中）</span>
-        </el-menu-item>
-      </el-menu>
+        </router-link>
+      </nav>
       <div class="adminUser">
         <div>{{ User.info.nickname || User.info.email }}</div>
-        <button @click="logOut">退出登录</button>
+        <Button label="退出登录" size="small" severity="secondary" text @click="logOut" />
       </div>
-    </el-aside>
-    <el-main><router-view :user="user" /></el-main>
-  </el-container>
+    </aside>
+    <main class="adminMain">
+      <router-view :user="user" />
+    </main>
+  </div>
 </template>
 
 <script>
+import Button from 'primevue/button';
 import { userInstance as User } from '@/types/User';
 import { ClearToken, GetToken } from '@/utils';
 import axios from 'axios';
@@ -31,6 +34,9 @@ import { GetApi } from '@/utils';
 export default {
   name: 'AdminLayout',
   props: ['user'],
+  components: {
+    Button
+  },
   data() {
     return {
       User
@@ -72,23 +78,57 @@ export default {
 
 <style lang="scss" scoped>
 .adminLayout {
+  display: flex;
   min-height: 100vh;
 }
 
+.adminAside {
+  width: 200px;
+  flex-shrink: 0;
+  background: #f7f8fc;
+  border-right: 1px solid #e6e9f5;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
 .adminTitle {
-  padding: 18px 16px 12px;
-  font-size: 18px;
+  padding: 8px 12px 14px;
+  font-size: 17px;
   font-weight: 700;
   color: #2c3e77;
 }
 
 .adminMenu {
-  border-right: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.adminLink {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #45507a;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background .15s;
+
+  &:hover {
+    background: #eceffb;
+  }
+
+  &.active {
+    background: #dde6ff;
+    color: #2c3e99;
+    font-weight: 600;
+  }
 }
 
 .adminUser {
-  margin-top: 30px;
-  padding: 16px;
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid #e6e9f5;
   font-size: 12px;
   color: #8892b8;
 
@@ -96,18 +136,21 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-bottom: 8px;
   }
+}
 
-  button {
-    margin-top: 8px;
-    padding: 4px 12px;
-    font-size: 12px;
-    border: 1px solid #dcdfe6;
-    background: white;
-    border-radius: 4px;
-    cursor: pointer;
+.adminMain {
+  flex: 1;
+  padding: 22px 26px;
+  min-width: 0;
+}
 
-    &:hover { color: #409eff; border-color: #409eff; }
-  }
+@media (max-width: 720px) {
+  .adminLayout { flex-direction: column; }
+  .adminAside { width: 100%; flex-direction: row; align-items: center; gap: 10px; }
+  .adminMenu { flex-direction: row; flex: 1; }
+  .adminUser { margin-top: 0; padding: 4px; border-top: none; }
+  .adminUser button { width: auto; }
 }
 </style>

@@ -46,11 +46,15 @@
       <login-box @login="logIn" @signup="signUp" />
     </div>
     <router-view ref="mainPage" :user="user"></router-view>
+    <toast />
+    <confirm-dialog />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import Toast from 'primevue/toast';
+import ConfirmDialog from 'primevue/confirmdialog';
 import { GetApi, SaveToken, ClearToken, GetToken } from '@/utils'; // 路径根据你的实际位置调整
 import { userInstance as User } from '@/types/User';
 import loginBox from '@/components/LoginBox.vue';
@@ -90,8 +94,9 @@ export default {
       try {
         const url = GetApi('/health');
         const response = await axios.get(url);
-        console.log(response.data);
-        this.serverOn = response.data === true;
+        // 兼容两种健康响应：true（旧约定）或 { status: 'ok' }（node-api 现行）
+        this.serverOn = response.data === true
+          || (response.data && response.data.status === 'ok');
       } catch (err) {
         console.error(err);
         this.serverOn = false;
@@ -199,7 +204,9 @@ export default {
     }
   },
   components: {
-    loginBox
+    loginBox,
+    Toast,
+    ConfirmDialog
   }
 }
 </script>
