@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="alphasoulApp">
     <aside :class="['naviSide', sideOn ? 'wide' : '']">
       <div :class="['naviLogo', sideOn ? 'wide' : '']" @click="sideOn = !sideOn">
         <img alt="Vue logo" src="/img/xiangyuan_e.png" width="100%">

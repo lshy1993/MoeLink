@@ -1,47 +1,47 @@
-import { createApp } from "vue";
-import App from "./App.vue";
+import Aura from '@primeuix/themes/aura'
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import 'primeicons/primeicons.css'
 
-import router from "./router";
+import axios from 'axios'
+import moment from 'moment'
 
-import PrimeVue from "primevue/config";
-import Aura from "@primeuix/themes/aura";
-import ToastService from "primevue/toastservice";
-import "primeicons/primeicons.css";
+import type UserClass from './types/User'
+import { userInstance } from './types/User'
+import * as func from './utils'
 
-import moment from "moment";
-import axios from "axios";
+import './style/animation.scss'
+import './style/common.scss'
+import './style/wiki.scss'
 
-import UserClass, { userInstance } from "./types/User";
-import * as func from "./utils";
-
-import "./style/animation.scss";
-import "./style/common.scss";
-import "./style/wiki.scss";
-import "./style/user.scss";
-
-declare module "@vue/runtime-core" {
+declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
-    Func: any;
-    $http: any;
-    User: UserClass;
-    $moment: typeof moment;
+    Func: any
+    $http: any
+    User: UserClass
+    $moment: typeof moment
   }
 }
 
-const app = createApp(App);
+const app = createApp(App)
 
-app.use(router);
+app.use(router)
 app.use(PrimeVue, {
   theme: { preset: Aura },
   ripple: true,
   license: import.meta.env.VITE_PRIMEUI_LICENSE_KEY || undefined,
-});
-app.use(ToastService);
+})
+app.use(ToastService)
+app.use(ConfirmationService)
 
 // 挂载全局属性
-app.config.globalProperties.Func = func;
-app.config.globalProperties.$http = axios;
-app.config.globalProperties.User = userInstance;
-app.config.globalProperties.$moment = moment;
+app.config.globalProperties.Func = func
+app.config.globalProperties.$http = axios
+app.config.globalProperties.User = userInstance
+app.config.globalProperties.$moment = moment
 
-app.mount("#app");
+app.mount('#app')

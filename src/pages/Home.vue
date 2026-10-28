@@ -118,21 +118,25 @@ export default {
 }
 
 .hero {
-  padding: 64px 0 40px;
+  padding: 72px 0 44px;
   text-align: center;
-  color: #f5f7ff;
-  text-shadow: 0 1px 8px rgba(20, 30, 70, 0.45);
 
   .logo {
-    font-size: 56px;
+    font-size: 60px;
     margin: 0;
     letter-spacing: 2px;
+    font-weight: 800;
+    // 品牌渐变文字（蓝 → 紫 → 青）
+    background: linear-gradient(120deg, #4a6fe3 0%, #7c5fe3 55%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .tagline {
     margin-top: 10px;
     font-size: 16px;
-    opacity: 0.9;
+    color: #56608a;
   }
 
   .heroStat {
@@ -141,11 +145,12 @@ export default {
     gap: 24px;
     justify-content: center;
     font-size: 13px;
-    opacity: 0.85;
+    color: #7a86b8;
 
     b {
       font-size: 16px;
       margin: 0 2px;
+      color: #2c53c9;
     }
   }
 }

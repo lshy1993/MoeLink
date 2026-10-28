@@ -4,14 +4,7 @@ html,body{
     height:100%;
 }
 
-body {
-    font-family: "Source Sans Pro","Hiragino Sans GB","Microsoft Yahei","SimSun","Helvetica","Arial","Sans-serif";
-    margin: 0;
-    overflow-x: hidden;
-    text-align: center;
-    color: #2c3e50;
-}
-
+// 元素重置（与 common.scss 一致，保持全局无害）
 blockquote, div, dl, dt, dd,
 h1, h2, h3, h4, h5, h6,
 ol, ul, li, p, pre, span, td, th, form,
@@ -20,13 +13,48 @@ footer,hgroup, menu, nav, section, summary, audio, video {
     margin: 0;
     padding: 0;
 }
-ol, ul {
-    list-style: none;
-}
 
-#app {
+// ─────────────────────────────────────────────────────────
+// 以下样式限定在 AlphaSoul 子应用根节点（.alphasoulApp）内，
+// 避免元素级选择器（body/a/h/ul/li）泄漏污染站点其他页面。
+// ─────────────────────────────────────────────────────────
+.alphasoulApp {
+    font-family: "Source Sans Pro","Hiragino Sans GB","Microsoft Yahei","SimSun","Helvetica","Arial","Sans-serif";
+    margin: 0;
+    overflow-x: hidden;
+    text-align: center;
+    color: #2c3e50;
     width: 100%;
     height: 100%;
+
+    ol, ul {
+        list-style: none;
+    }
+
+    h1 {
+        margin: 20px 0;
+    }
+    h2 {
+        margin: 10px 0;
+    }
+    h3 {
+        margin: 40px 5px;
+    }
+    h4 {
+        margin: 10px 0;
+    }
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    li {
+        display: inline-block;
+        margin: 0 10px;
+    }
+    a {
+        display: block;
+        color: #4a6fe3;
+    }
 }
 
 .naviSide {
@@ -78,30 +106,6 @@ ol, ul {
         margin-left: 170px;
     }
 }
-h1 {
-    margin: 20px 0;
-}
-h2 {
-    margin: 10px 0;
-}
-h3 {
-    margin: 40px 5px;
-}
-h4 {
-    margin: 10px 0;
-}
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-li {
-    display: inline-block;
-    margin: 0 10px;
-}
-a {
-    display: block;
-    color: #42b983;
-}
 
 .fade-enter-active, .fade-leave-active {
     /*transition: opacity .5s;*/
@@ -114,13 +118,13 @@ a {
     height: 0;
 }
 
-.fadeyaku-enter-active, .fade-leave-active {
+.fadeyaku-enter-active, .fadeyaku-leave-active {
     /*transition: opacity .5s;*/
     transition: height 0.5s;
 }
-.fadeyaku-enter-to, .fade-leave /* .fade-leave-active below version 2.1.8 */ {
+.fadeyaku-enter-to, .fadeyaku-leave /* .fade-leave-active below version 2.1.8 */ {
     height: auto;
 }
-.fadeyaku-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fadeyaku-enter, .fadeyaku-leave-to /* .fade-leave-active below version 2.1.8 */ {
     height: 0;
 }

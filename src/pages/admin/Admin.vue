@@ -9,6 +9,12 @@
         <router-link to="/admin/blog" class="adminLink" :class="{ active: $route.path.indexOf('/admin/blog') === 0 }">
           <span>📝 博客管理</span>
         </router-link>
+        <router-link to="/admin/threads" class="adminLink" :class="{ active: $route.path.indexOf('/admin/threads') === 0 }">
+          <span>💬 讨论区管理</span>
+        </router-link>
+        <router-link to="/admin/mocoin" class="adminLink" :class="{ active: $route.path.indexOf('/admin/mocoin') === 0 }">
+          <span>🪙 MoeCoin 管理</span>
+        </router-link>
         <router-link to="/admin/shop" class="adminLink" :class="{ active: $route.path.indexOf('/admin/shop') === 0 }">
           <span>🛒 EC 管理（开发中）</span>
         </router-link>
@@ -25,54 +31,55 @@
 </template>
 
 <script>
-import Button from 'primevue/button';
-import { userInstance as User } from '@/types/User';
-import { ClearToken, GetToken } from '@/utils';
-import axios from 'axios';
-import { GetApi } from '@/utils';
+import axios from 'axios'
+import Button from 'primevue/button'
+import { userInstance as User } from '@/types/User'
+import { ClearToken, GetApi, GetToken } from '@/utils'
 
 export default {
   name: 'AdminLayout',
   props: ['user'],
   components: {
-    Button
+    Button,
   },
   data() {
     return {
-      User
+      User,
     }
   },
   mounted() {
     // 会话失效（token 过期 / 非管理员）时回到首页
     if (!GetToken()) {
-      this.$router.replace('/');
-      return;
+      this.$router.replace('/')
+      return
     }
-    this.checkAdmin();
+    this.checkAdmin()
   },
   methods: {
     async checkAdmin() {
       try {
         await axios.get(GetApi('/admin/unified-users'), {
           headers: { Authorization: `Bearer ${GetToken()}` },
-          params: { limit: 1 }
-        });
+          params: { limit: 1 },
+        })
       } catch (err) {
-        const status = err.response && err.response.status;
+        const status = err.response?.status
         if (status === 401 || status === 403) {
-          this.$router.replace('/');
+          this.$router.replace('/')
         }
       }
     },
     async logOut() {
       try {
-        await axios.post(GetApi('/user/logout'));
-      } catch (err) { /* ignore */ }
-      ClearToken();
-      User.Logout();
-      this.$router.replace('/');
-    }
-  }
+        await axios.post(GetApi('/user/logout'))
+      } catch (_err) {
+        /* ignore */
+      }
+      ClearToken()
+      User.Logout()
+      this.$router.replace('/')
+    },
+  },
 }
 </script>
 
