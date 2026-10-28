@@ -18,6 +18,9 @@
         <router-link to="/admin/shop" class="adminLink" :class="{ active: $route.path.indexOf('/admin/shop') === 0 }">
           <span>🛒 EC 管理</span>
         </router-link>
+        <router-link to="/admin/announcements" class="adminLink" :class="{ active: $route.path.indexOf('/admin/announcements') === 0 }">
+          <span>📢 全局公告</span>
+        </router-link>
       </nav>
       <div class="adminUser">
         <div>{{ User.info.nickname || User.info.email }}</div>

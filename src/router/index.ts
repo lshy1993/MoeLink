@@ -199,6 +199,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'admin-shop',
         component: () => import('../pages/admin/ShopAdmin.vue'),
       },
+      {
+        path: 'announcements',
+        name: 'admin-announcements',
+        component: () => import('../pages/admin/AnnouncementAdmin.vue'),
+      },
     ],
   },
 ]

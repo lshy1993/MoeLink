@@ -3,6 +3,9 @@
     <global-topbar
       :user="user"
       :server-on="serverOn"
+      :announcement="announcement"
+      :announcement-unseen="announcementUnseen"
+      @show-announcement="showAnnouncement"
       @show-login="showLoginBox"
       @logout="logOut"
     />
@@ -10,6 +13,11 @@
       <login-box @login="logIn" @signup="signUp" />
     </div>
     <router-view ref="mainPage" :user="user"></router-view>
+    <announcement-popup
+      :announcement="announcement"
+      :visible="announcementOpen"
+      @close="announcementOpen = false"
+    />
     <toast />
     <confirm-dialog />
   </div>
@@ -19,10 +27,13 @@
 import axios from 'axios'
 import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
+import AnnouncementPopup from '@/components/AnnouncementPopup.vue'
 import GlobalTopbar from '@/components/GlobalTopbar.vue'
 import loginBox from '@/components/LoginBox.vue'
 import { userInstance as User } from '@/types/User'
 import { ClearToken, GetApi, GetToken, SaveToken } from '@/utils' // 路径根据你的实际位置调整
+const SEEN_KEY = 'moelink_seen_announcement'
+
 export default {
   name: 'app',
   data() {
@@ -30,6 +41,10 @@ export default {
       debug: true,
       loginOn: false,
       serverOn: false,
+      announcement: null,
+      announcementOpen: false,
+      announcementUnseen: false,
+      announcementTimer: null,
       user: {
         userinfo: {},
         logined: false,
@@ -47,8 +62,58 @@ export default {
   },
   mounted() {
     this.initLoginStatus()
+    this.loadAnnouncement()
+    this.announcementTimer = setInterval(this.loadAnnouncement, 5 * 60 * 1000)
+  },
+  beforeUnmount() {
+    clearInterval(this.announcementTimer)
+  },
+  watch: {
+    // 从 admin 进入前台后也要补弹
+    '$route.path'() {
+      this.autoShowAnnouncement()
+    },
   },
   methods: {
+    // ── 全局公告 ──
+    async loadAnnouncement() {
+      try {
+        const res = await axios.get(GetApi('/announcement/current'))
+        this.announcement = res.data?.announcement || null
+      } catch (_err) {
+        return
+      }
+      await this.$router.isReady()
+      this.autoShowAnnouncement()
+    },
+    seenId() {
+      try {
+        return localStorage.getItem(SEEN_KEY)
+      } catch (_err) {
+        return null
+      }
+    },
+    markAnnouncementSeen() {
+      if (!this.announcement) return
+      try {
+        localStorage.setItem(SEEN_KEY, String(this.announcement.id))
+      } catch (_err) {
+        /* ignore */
+      }
+      this.announcementUnseen = false
+    },
+    autoShowAnnouncement() {
+      const a = this.announcement
+      this.announcementUnseen = !!a && this.seenId() !== String(a.id)
+      if (!this.announcementUnseen || this.announcementOpen) return
+      if (this.$route.path.startsWith('/admin')) return
+      this.showAnnouncement()
+    },
+    showAnnouncement() {
+      if (!this.announcement) return
+      this.announcementOpen = true
+      this.markAnnouncementSeen()
+    },
     async checkServer() {
       try {
         const url = GetApi('/health')
@@ -176,6 +241,7 @@ export default {
     },
   },
   components: {
+    AnnouncementPopup,
     loginBox,
     GlobalTopbar,
     Toast,

@@ -57,12 +57,27 @@
 
     <!-- 通知面板（下拉） -->
     <transition name="dropDown">
-      <div v-if="bellOpen" ref="bellPanel" class="bellPanel">
+      <div v-if="bellOpen" ref="bellPanel" class="bellPanel" :style="bellStyle">
         <div class="bellHead">
           <b>通知</b>
           <button v-if="unread > 0" class="markAllBtn" @click="markAllRead">全部已读</button>
         </div>
         <div class="bellList">
+          <!-- 全局公告永远置顶 -->
+          <button
+            v-if="announcement"
+            class="bellItem pinned"
+            :class="{ unread: announcementUnseen }"
+            @click="openAnnouncement"
+          >
+            <span class="nIcon orange"><i class="pi pi-megaphone"></i></span>
+            <span class="nBody">
+              <span class="nTitle">
+                <b class="pinTag">公告</b>{{ announcementLabel }}
+              </span>
+            </span>
+            <span v-if="announcementUnseen" class="nDot"></span>
+          </button>
           <template v-if="notifications.length">
             <button
               v-for="n in notifications"
@@ -82,7 +97,7 @@
               <span v-if="!n.read_at" class="nDot"></span>
             </button>
           </template>
-          <div v-else class="bellEmpty">
+          <div v-else-if="!announcement" class="bellEmpty">
             <i class="pi pi-inbox"></i>
             <p>暂无通知</p>
           </div>
@@ -116,6 +131,17 @@ import { useToast } from 'primevue/usetoast'
 import { formatCoin, formatTime } from '@/pages/wallet/shared'
 import { GetApi, GetToken, md5 } from '@/utils'
 
+// 通知类型 → 图标/配色
+const NOTIF_META = {
+  reply: { icon: 'pi pi-comment', cls: 'blue' },
+  tip_reply: { icon: 'pi pi-heart', cls: 'orange' },
+  tip_post: { icon: 'pi pi-heart', cls: 'orange' },
+  bounty: { icon: 'pi pi-trophy', cls: 'purple' },
+  moecoin_grant: { icon: 'pi pi-wallet', cls: 'green' },
+  shop_order: { icon: 'pi pi-shopping-cart', cls: 'cyan' },
+  role: { icon: 'pi pi-user', cls: 'purple' },
+}
+
 export default {
   name: 'GlobalTopbar',
   components: { Avatar, Menu },
@@ -125,13 +151,16 @@ export default {
   props: {
     user: { type: Object, required: true },
     serverOn: { type: Boolean, default: false },
+    announcement: { type: Object, default: null },
+    announcementUnseen: { type: Boolean, default: false },
   },
-  emits: ['show-login', 'logout'],
+  emits: ['show-login', 'logout', 'show-announcement'],
   data() {
     return {
       mobileOpen: false,
       checkingIn: false,
       bellOpen: false,
+      bellStyle: {},
       notifications: [],
       unread: 0,
       notifLoading: false,
@@ -154,6 +183,12 @@ export default {
     }
   },
   computed: {
+    announcementLabel() {
+      const a = this.announcement
+      if (!a) return ''
+      if (a.title) return a.title
+      return a.kind === 'image' ? '[图片公告]' : (a.content || '').slice(0, 40)
+    },
     logined() {
       return !!this.user.logined
     },
@@ -216,12 +251,18 @@ export default {
     }
     // 点击面板外部时关闭通知
     document.addEventListener('mousedown', this.onDocMouseDown)
+    window.addEventListener('resize', this.onResize)
   },
   beforeUnmount() {
     if (this.pollTimer) clearInterval(this.pollTimer)
     document.removeEventListener('mousedown', this.onDocMouseDown)
+    window.removeEventListener('resize', this.onResize)
   },
   methods: {
+    openAnnouncement() {
+      this.bellOpen = false
+      this.$emit('show-announcement')
+    },
     formatCoin,
     formatTime,
     notifMeta(type) {
@@ -234,6 +275,9 @@ export default {
       return { Authorization: `Bearer ${GetToken()}` }
     },
     // ── 通知 ─────────────────────────────
+    onResize() {
+      if (this.bellOpen) this.placeBell()
+    },
     onDocMouseDown(e) {
       if (!this.bellOpen) return
       const panel = this.$refs.bellPanel
@@ -247,9 +291,22 @@ export default {
         this.bellOpen = false
       }
     },
+    // 面板以铃铛按钮为锚点（顶栏内容有 max-width，不能相对整条 header 定位）
+    placeBell() {
+      const btn = this.$refs.bellBtn
+      if (!btn) return
+      const r = btn.getBoundingClientRect()
+      const width = Math.min(360, window.innerWidth - 16)
+      const center = r.left + r.width / 2
+      const left = Math.min(Math.max(8, center - width / 2), window.innerWidth - width - 8)
+      this.bellStyle = { top: `${r.bottom + 8}px`, left: `${left}px`, width: `${width}px` }
+    },
     toggleBell() {
       this.bellOpen = !this.bellOpen
-      if (this.bellOpen) this.fetchNotifications()
+      if (this.bellOpen) {
+        this.placeBell()
+        this.fetchNotifications()
+      }
     },
     async fetchUnread() {
       try {
@@ -522,9 +579,7 @@ export default {
 
 // 通知下拉面板
 .bellPanel {
-  position: absolute;
-  top: 58px;
-  right: 0;
+  position: fixed;
   width: 360px;
   max-width: calc(100vw - 16px);
   background: rgba(255, 255, 255, 0.98);
@@ -646,6 +701,25 @@ export default {
     border-radius: 50%;
     background: #ee5253;
     flex-shrink: 0;
+  }
+}
+
+.bellItem.pinned {
+  background: #fff8ee;
+  border-bottom-color: #f6e7cf;
+
+  &:hover,
+  &.unread:hover {
+    background: #fff1dc;
+  }
+
+  .pinTag {
+    margin-right: 6px;
+    padding: 0 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: #d97a2b;
+    color: #fff;
   }
 }
 
