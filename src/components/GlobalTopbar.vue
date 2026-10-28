@@ -178,7 +178,6 @@ export default {
         { to: '/blog', label: '博客' },
         { to: '/shop', label: 'EC 商城' },
         { to: '/alphasoul', label: 'AlphaSoul' },
-        { to: '/miao', label: '小屋' },
       ],
     }
   },

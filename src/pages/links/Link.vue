@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="site-page">
     <div class="inset-container">
         <header class="pagehead">
             <h1>广告位</h1>
@@ -51,6 +51,6 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+@import "./style/site.scss";
 </style>

@@ -3,6 +3,7 @@
     <header class="pageHead">
       <h1>博客</h1>
       <p>技术笔记 · 项目日志 · 日常</p>
+      <router-link v-if="logined" to="/blog/manage" class="writeBtn">✏️ 写文章 / 我的文章</router-link>
     </header>
 
     <div v-if="posts.length" class="postCards">
@@ -28,7 +29,7 @@
 
 <script>
 import axios from 'axios';
-import { GetApi } from '@/utils';
+import { GetApi, GetToken } from '@/utils';
 
 const PAGE_SIZE = 10;
 
@@ -43,6 +44,9 @@ export default {
     }
   },
   computed: {
+    logined() {
+      return !!GetToken();
+    },
     canLoadMore() {
       return this.posts.length < this.total;
     }
@@ -154,5 +158,15 @@ export default {
   cursor: pointer;
 
   &:hover { background: #eef1fd; }
+}
+.writeBtn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 16px;
+  border-radius: 16px;
+  background: #2c53c9;
+  color: #fff;
+  font-size: 13px;
+  text-decoration: none;
 }
 </style>

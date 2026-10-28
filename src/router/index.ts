@@ -20,9 +20,29 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../pages/blog/BlogList.vue'),
   },
   {
+    path: '/blog/manage',
+    name: 'blog-manage',
+    component: () => import('../pages/blog/BlogManage.vue'),
+  },
+  {
     path: '/blog/:id(\\d+)',
     name: 'blog-detail',
     component: () => import('../pages/blog/BlogDetail.vue'),
+  },
+  {
+    path: '/miao',
+    name: 'miao',
+    component: () => import('../pages/miao/MiaoList.vue'),
+  },
+  {
+    path: '/miao/:id(\\d+)',
+    name: 'miao-detail',
+    component: () => import('../pages/miao/MiaoDetail.vue'),
+  },
+  {
+    path: '/links',
+    name: 'links',
+    component: () => import('../pages/links/Link.vue'),
   },
   {
     path: '/threads',
@@ -92,78 +112,6 @@ const routes: Array<RouteRecordRaw> = [
     ],
   },
   {
-    path: '/miao',
-    name: 'miao',
-    component: () => import('../pages/home/Miao.vue'),
-    children: [
-      {
-        path: '',
-        name: 'miao-home',
-        component: () => import('../pages/home/views/Index.vue'),
-      },
-      {
-        path: 'about',
-        name: 'miao-about',
-        component: () => import('../pages/home/views/About.vue'),
-      },
-      {
-        path: 'intro',
-        name: 'miao-intro',
-        component: () => import('../pages/home/views/SiteIntro.vue'),
-      },
-      {
-        path: 'member',
-        name: 'miao-member',
-        component: () => import('../pages/home/views/Member.vue'),
-      },
-      {
-        path: 'download',
-        name: 'miao-download',
-        component: () => import('../pages/home/views/Download.vue'),
-      },
-      {
-        path: 'danmu',
-        name: 'miao-danmu',
-        component: () => import('../pages/home/views/Danmaku.vue'),
-      },
-      {
-        path: 'news',
-        name: 'miao-news',
-        component: () => import('../pages/home/views/News.vue'),
-      },
-      {
-        path: 'works',
-        name: 'miao-works',
-        component: () => import('../pages/home/views/Works.vue'),
-      },
-      {
-        path: 'dev',
-        name: 'miao-dev',
-        component: () => import('../pages/home/views/Plan.vue'),
-      },
-      {
-        path: 'dev/:id',
-        name: 'miao-devpage',
-        component: () => import('../pages/home/views/dev/PlanPage.vue'),
-      },
-      {
-        path: 'goods',
-        name: 'miao-goods',
-        component: () => import('../pages/home/views/Goods.vue'),
-      },
-      {
-        path: 'link',
-        name: 'miao-link',
-        component: () => import('../pages/home/views/Link.vue'),
-      },
-      {
-        path: 'status',
-        name: 'miao-status',
-        component: () => import('../pages/home/views/Status.vue'),
-      },
-    ],
-  },
-  {
     path: '/admin',
     name: 'admin',
     component: () => import('../pages/admin/Admin.vue'),
@@ -183,6 +131,12 @@ const routes: Array<RouteRecordRaw> = [
         path: 'blog',
         name: 'admin-blog',
         component: () => import('../pages/admin/BlogAdmin.vue'),
+      },
+      {
+        path: 'miao',
+        name: 'admin-miao',
+        component: () => import('../pages/admin/BlogAdmin.vue'),
+        props: { base: '/miao', withCategory: true, heading: '小屋文章' },
       },
       {
         path: 'threads',

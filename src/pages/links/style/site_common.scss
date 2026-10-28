@@ -1,4 +1,4 @@
-body {
+.site-page {
     font-family: "Source Sans Pro","Hiragino Sans GB","Microsoft Yahei",SimSun,Helvetica,Arial,Sans-serif;
     background: #fed;
     margin: 0;
@@ -300,5 +300,32 @@ body {
     }
 
 
+
+}
+// 过渡动画（原 transition.scss）
+.site-page {
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+
+.width-toggle-enter-active, .width-toggle-leave-active {
+    transition: width .5s;
+}
+.width-toggle-enter, .width-toggle-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    width: 100px;
+}
+.width-toggle-leave, .width-toggle-enter-to /* .fade-leave-active below version 2.1.8 */ {
+    width: 0px;
+}
+
+.ml-toggle-enter-active, .ml-toggle-leave-active {
+    transition: margin-left .5s;
+}
+.ml-toggle-enter, .ml-toggle-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    margin-left: 0;
+}
 
 }

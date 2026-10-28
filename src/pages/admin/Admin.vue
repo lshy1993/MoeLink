@@ -9,6 +9,9 @@
         <router-link to="/admin/blog" class="adminLink" :class="{ active: $route.path.indexOf('/admin/blog') === 0 }">
           <span>📝 博客管理</span>
         </router-link>
+        <router-link to="/admin/miao" class="adminLink" :class="{ active: $route.path.indexOf('/admin/miao') === 0 }">
+          <span>🏠 小屋管理</span>
+        </router-link>
         <router-link to="/admin/threads" class="adminLink" :class="{ active: $route.path.indexOf('/admin/threads') === 0 }">
           <span>💬 讨论区管理</span>
         </router-link>

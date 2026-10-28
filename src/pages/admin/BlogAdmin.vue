@@ -2,11 +2,13 @@
   <div class="blogAdminPage">
     <!-- 编辑器 -->
     <div class="editorCard">
-      <h2>{{ form.id ? '编辑文章 #' + form.id : '新建文章' }}</h2>
+      <h2>{{ form.id ? '编辑' + heading + ' #' + form.id : '新建' + heading }}</h2>
       <div class="formRow">
         <InputText v-model="form.title" placeholder="标题" maxlength="200" class="titleInput" />
         <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value"
           style="width: 120px" />
+        <Select v-if="withCategory" v-model="form.category" :options="categoryOptions" optionLabel="label"
+          optionValue="value" style="width: 100px" />
         <Button label="保存" :disabled="!form.title || !form.content" @click="save" />
         <Button v-if="form.id" label="新建" severity="secondary" outlined @click="resetForm" />
       </div>
@@ -28,12 +30,13 @@
 
     <!-- 文章列表 -->
     <div class="listCard">
-      <h2>全部文章</h2>
+      <h2>{{ scope === 'mine' ? '我的' + heading : '全部' + heading }}</h2>
       <DataTable :value="posts" :loading="loading" dataKey="id">
         <Column field="id" header="ID" style="width: 56px" />
         <Column header="标题" style="min-width: 200px">
           <template #body="{ data }">
             {{ data.title }}
+            <Tag v-if="withCategory" :value="data.category === 'works' ? '作品' : '消息'" severity="info" style="margin-left: 4px" />
             <Tag v-if="data.status === 'published'" value="已发布" severity="success" style="margin-left: 4px" />
             <Tag v-else value="草稿" severity="secondary" style="margin-left: 4px" />
           </template>
@@ -71,7 +74,13 @@ import { GetApi, GetToken } from '@/utils';
 
 export default {
   name: 'AdminBlog',
-  props: ['user'],
+  props: {
+    // 接口前缀与列表范围：admin 博客 /blog + all；用户自己的博客 /blog + mine；小屋 /miao + all
+    base: { type: String, default: '/blog' },
+    scope: { type: String, default: 'all' },
+    withCategory: { type: Boolean, default: false },
+    heading: { type: String, default: '文章' },
+  },
   components: {
     DataTable,
     Column,
@@ -100,8 +109,13 @@ export default {
         title: '',
         summary: '',
         content: '',
-        status: 'draft'
-      }
+        status: 'draft',
+        category: 'news'
+      },
+      categoryOptions: [
+        { label: '消息', value: 'news' },
+        { label: '作品', value: 'works' }
+      ]
     }
   },
   computed: {
@@ -120,7 +134,7 @@ export default {
     async load() {
       this.loading = true;
       try {
-        const res = await axios.get(GetApi('/blog/all'), { headers: this.headers() });
+        const res = await axios.get(GetApi(`${this.base}/${this.scope}`), { headers: this.headers() });
         this.posts = res.data.posts || [];
       } catch (err) {
         this.toast.add({ severity: 'error', summary: '加载失败', detail: '文章列表加载失败', life: 3000 });
@@ -134,12 +148,13 @@ export default {
         content: this.form.content,
         status: this.form.status
       };
+      if (this.withCategory) payload.category = this.form.category;
       try {
         if (this.form.id) {
-          await axios.put(GetApi(`/blog/${this.form.id}`), payload, { headers: this.headers() });
+          await axios.put(GetApi(`${this.base}/${this.form.id}`), payload, { headers: this.headers() });
           this.toast.add({ severity: 'success', summary: '已保存', life: 2000 });
         } else {
-          await axios.post(GetApi('/blog'), payload, { headers: this.headers() });
+          await axios.post(GetApi(this.base), payload, { headers: this.headers() });
           this.toast.add({ severity: 'success', summary: '已创建', life: 2000 });
         }
         this.resetForm();
@@ -154,8 +169,9 @@ export default {
       this.form.title = row.title;
       this.form.summary = row.summary || '';
       this.form.status = row.status;
+      this.form.category = row.category || 'news';
       // 正文再从详情接口取
-      axios.get(GetApi(`/blog/post/${row.id}`), { headers: this.headers() })
+      axios.get(GetApi(`${this.base}/post/${row.id}`), { headers: this.headers() })
         .then((res) => {
           this.form.content = (res.data.post && res.data.post.content_md) || '';
         })
@@ -172,7 +188,7 @@ export default {
         acceptLabel: '删除',
         rejectLabel: '取消',
         accept: () => {
-          axios.delete(GetApi(`/blog/${row.id}`), { headers: this.headers() })
+          axios.delete(GetApi(`${this.base}/${row.id}`), { headers: this.headers() })
             .then(() => {
               this.toast.add({ severity: 'success', summary: '已删除', life: 2000 });
               if (this.form.id === row.id) this.resetForm();
@@ -185,7 +201,7 @@ export default {
       });
     },
     resetForm() {
-      this.form = { id: null, title: '', summary: '', content: '', status: 'draft' };
+      this.form = { id: null, title: '', summary: '', content: '', status: 'draft', category: 'news' };
     },
     formatDate(d) {
       if (!d) return '—';

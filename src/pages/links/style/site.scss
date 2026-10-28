@@ -1,0 +1,4 @@
+// 博客「消息 / 作品 / 链接」页样式（原小屋 vue-home）
+// 原 common.scss 整体包在 body{} 块中，这里将 body 选择器替换为 .site-page，
+// 限定作用域，避免影响 MoeLink 其他页面
+@import './site_common.scss';

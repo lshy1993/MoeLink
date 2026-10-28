@@ -57,14 +57,16 @@
         <p>雀魂 online：人工智障点炮机与联机对战工具。</p>
         <div class="cardTag">进入</div>
       </router-link>
-
-      <!-- 小屋 -->
-      <router-link class="card" to="/miao">
-        <div class="cardHead"><span class="icon">🏡</span><h2>小屋</h2></div>
-        <p>个人空间：关于、日志、作品与下载。</p>
-        <div class="cardTag">进入</div>
-      </router-link>
     </section>
+
+    <nav class="quickNav" aria-label="更多内容">
+      <router-link class="quickLink" to="/links">
+        <span aria-hidden="true">🔗</span>友链
+      </router-link>
+      <router-link class="quickLink" to="/miao">
+        <span aria-hidden="true">🏠</span>小屋
+      </router-link>
+    </nav>
   </div>
 </template>
 
@@ -166,6 +168,34 @@ export default {
   gap: 18px;
 }
 
+.quickNav {
+  max-width: 960px;
+  margin: 16px auto 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.quickLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid rgba(210, 218, 241, 0.9);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #56608a;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background .15s, border-color .15s, color .15s;
+
+  &:hover {
+    border-color: #b9c8f2;
+    background: #eef2ff;
+    color: #2c53c9;
+  }
+}
+
 .card {
   position: relative;
   display: block;
@@ -251,6 +281,10 @@ export default {
     grid-template-columns: 1fr;
 
     .card.cardWide { grid-column: span 1; }
+  }
+
+  .quickNav {
+    justify-content: center;
   }
 }
 </style>
