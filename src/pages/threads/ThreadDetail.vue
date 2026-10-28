@@ -176,7 +176,7 @@ export default {
     },
     async loadWallet() {
       try {
-        const res = await axios.get(GetApi('/mocoin/wallet'), {
+        const res = await axios.get(GetApi('/moecoin/wallet'), {
           headers: { Authorization: `Bearer ${GetToken()}` },
         })
         this.walletBalance = res.data.balance

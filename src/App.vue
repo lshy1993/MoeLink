@@ -80,7 +80,13 @@ export default {
       try {
         // 通过 Authorization 头检测会话是否仍有效
         const url = GetApi('/user/session')
-        const response = await axios.post(url)
+        const response = await axios.post(
+          url,
+          {},
+          {
+            headers: { Authorization: `Bearer ${GetToken()}` },
+          },
+        )
         if (response.data?.userInfo) {
           this.user.userinfo = response.data.userInfo
           this.openUserPanel()
@@ -98,7 +104,13 @@ export default {
     async getUserInfo() {
       try {
         const url = GetApi('/user/info')
-        const response = await axios.post(url)
+        const response = await axios.post(
+          url,
+          {},
+          {
+            headers: { Authorization: `Bearer ${GetToken()}` },
+          },
+        )
         if (response.data?.userInfo) {
           this.user.userinfo = response.data.userInfo
         }

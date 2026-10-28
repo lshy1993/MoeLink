@@ -1,5 +1,5 @@
 <template>
-  <div class="mocoinAdminPage">
+  <div class="moecoinAdminPage">
     <!-- 统计 -->
     <div class="statCards" v-if="stats">
       <div class="statCard">
@@ -107,7 +107,7 @@ import { GetApi, GetToken } from '@/utils'
 import { formatCoin, formatTime, txMeta } from '../wallet/shared'
 
 export default {
-  name: 'AdminMocoin',
+  name: 'AdminMoecoin',
   components: { DataTable, Column, Button, Tag, InputText, InputNumber },
   setup() {
     return { toast: useToast() }
@@ -202,7 +202,7 @@ export default {
     },
     async loadSettings() {
       try {
-        const res = await axios.get(GetApi('/mocoin/admin/settings'), {
+        const res = await axios.get(GetApi('/moecoin/admin/settings'), {
           headers: this.headers(),
         })
         if (res.data) {
@@ -223,7 +223,7 @@ export default {
     },
     async loadStats() {
       try {
-        const res = await axios.get(GetApi('/mocoin/admin/stats'), {
+        const res = await axios.get(GetApi('/moecoin/admin/stats'), {
           headers: this.headers(),
         })
         this.stats = res.data
@@ -234,7 +234,7 @@ export default {
     async loadTx() {
       this.loadingTx = true
       try {
-        const res = await axios.get(GetApi('/mocoin/admin/tx'), {
+        const res = await axios.get(GetApi('/moecoin/admin/tx'), {
           headers: this.headers(),
           params: { limit: 50 },
         })
@@ -253,7 +253,7 @@ export default {
       this.savingSettings = true
       try {
         const res = await axios.put(
-          GetApi('/mocoin/admin/settings'),
+          GetApi('/moecoin/admin/settings'),
           this.settingsForm,
           { headers: this.headers() },
         )
@@ -283,7 +283,7 @@ export default {
       this.granting = true
       try {
         const res = await axios.post(
-          GetApi('/mocoin/admin/grant'),
+          GetApi('/moecoin/admin/grant'),
           {
             to_uid: this.grantForm.to_uid,
             amount: this.grantForm.amount,
@@ -316,7 +316,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.mocoinAdminPage {
+.moecoinAdminPage {
   max-width: 1150px;
 }
 

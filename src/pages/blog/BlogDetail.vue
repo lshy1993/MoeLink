@@ -102,7 +102,7 @@ export default {
     async loadTips() {
       try {
         const res = await axios.get(
-          GetApi(`/mocoin/tips/${this.$route.params.id}`),
+          GetApi(`/moecoin/tips/${this.$route.params.id}`),
         )
         this.tips = res.data
       } catch (_err) {
@@ -111,7 +111,7 @@ export default {
     },
     async loadWallet() {
       try {
-        const res = await axios.get(GetApi('/mocoin/wallet'), {
+        const res = await axios.get(GetApi('/moecoin/wallet'), {
           headers: { Authorization: `Bearer ${GetToken()}` },
         })
         this.walletBalance = res.data.balance
@@ -125,7 +125,7 @@ export default {
       this.tipping = true
       try {
         const res = await axios.post(
-          GetApi('/mocoin/tip'),
+          GetApi('/moecoin/tip'),
           {
             post_id: this.post.id,
             amount: this.tipForm.amount,

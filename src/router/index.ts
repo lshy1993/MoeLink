@@ -180,9 +180,9 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('../pages/admin/ThreadsAdmin.vue'),
       },
       {
-        path: 'mocoin',
-        name: 'admin-mocoin',
-        component: () => import('../pages/admin/MocoinAdmin.vue'),
+        path: 'moecoin',
+        name: 'admin-moecoin',
+        component: () => import('../pages/admin/MoecoinAdmin.vue'),
       },
       {
         path: 'shop',

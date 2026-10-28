@@ -173,7 +173,7 @@ export default {
     },
     async fetchWallet() {
       try {
-        const res = await axios.get(GetApi('/mocoin/wallet'), {
+        const res = await axios.get(GetApi('/moecoin/wallet'), {
           headers: this.headers(),
         })
         this.wallet = {
@@ -190,7 +190,7 @@ export default {
       this.checkingIn = true
       try {
         const res = await axios.post(
-          GetApi('/mocoin/checkin'),
+          GetApi('/moecoin/checkin'),
           {},
           { headers: this.headers() },
         )

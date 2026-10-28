@@ -12,7 +12,7 @@
         <router-link to="/admin/threads" class="adminLink" :class="{ active: $route.path.indexOf('/admin/threads') === 0 }">
           <span>💬 讨论区管理</span>
         </router-link>
-        <router-link to="/admin/mocoin" class="adminLink" :class="{ active: $route.path.indexOf('/admin/mocoin') === 0 }">
+        <router-link to="/admin/moecoin" class="adminLink" :class="{ active: $route.path.indexOf('/admin/moecoin') === 0 }">
           <span>🪙 MoeCoin 管理</span>
         </router-link>
         <router-link to="/admin/shop" class="adminLink" :class="{ active: $route.path.indexOf('/admin/shop') === 0 }">

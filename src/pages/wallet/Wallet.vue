@@ -150,7 +150,7 @@ export default {
     },
     async loadWallet() {
       try {
-        const res = await axios.get(GetApi('/mocoin/wallet'), {
+        const res = await axios.get(GetApi('/moecoin/wallet'), {
           headers: this.headers(),
         })
         this.wallet = res.data
@@ -171,7 +171,7 @@ export default {
     async load() {
       this.loading = true
       try {
-        const res = await axios.get(GetApi('/mocoin/tx'), {
+        const res = await axios.get(GetApi('/moecoin/tx'), {
           headers: this.headers(),
           params: { limit: PAGE_SIZE, offset: this.offset },
         })
@@ -201,7 +201,7 @@ export default {
       this.checkingIn = true
       try {
         const res = await axios.post(
-          GetApi('/mocoin/checkin'),
+          GetApi('/moecoin/checkin'),
           {},
           { headers: this.headers() },
         )
@@ -242,7 +242,7 @@ export default {
       this.transferring = true
       try {
         const res = await axios.post(
-          GetApi('/mocoin/transfer'),
+          GetApi('/moecoin/transfer'),
           {
             to_uid: this.transferForm.to_uid,
             amount: this.transferForm.amount,
