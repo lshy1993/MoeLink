@@ -29,24 +29,32 @@
         v-for="p in products"
         :key="`${p.item_type || 'product'}-${p.id}`"
         class="productCard"
+        :class="{ pendingReviewCard: p.item_type === 'group_buy' && p.status === 'pending_review' }"
         :to="productLink(p)"
       >
         <div class="productCover">
           <img v-if="p.image_url" :src="p.image_url" :alt="p.title">
           <span v-else class="productEmoji">{{ p.emoji || '🛍️' }}</span>
-          <span v-if="p.item_type === 'group_buy'" class="typeBadge">拼团商品</span>
+          <span v-if="p.item_type === 'group_buy'" class="typeBadge">
+            {{ p.status === 'pending_review' ? '等待审核' : '拼团商品' }}
+          </span>
         </div>
         <h2 class="productTitle">{{ p.title }}</h2>
-        <div class="productMeta">
+        <div v-if="p.item_type === 'group_buy'" class="groupPrice">
+          <span class="groupPriceLabel">{{ groupPriceLabel(p) }}</span>
+          <strong>{{ formatCoin(groupPrice(p)) }} <small>MoeCoin / 人</small></strong>
+          <span class="groupTotal">拼团总价 {{ formatCoin(p.price_moecoin) }} MoeCoin</span>
+        </div>
+        <div v-if="p.item_type !== 'group_buy'" class="productMeta">
           <span class="priceChip">
             <i class="pi pi-wallet"></i>{{ priceLabel(p) }}
           </span>
-          <span class="stockInfo">{{ p.item_type === 'group_buy' ? '拼团' : stockLabel(p) }}</span>
+          <span class="stockInfo">{{ stockLabel(p) }}</span>
         </div>
         <div v-if="p.item_type === 'group_buy'" class="groupProgress">
           <span>{{ p.member_count }}/{{ p.target_count }} 人</span>
           <ProgressBar :value="progress(p)" :showValue="false" />
-          <span>{{ p.status === 'open' ? `截止 ${formatDate(p.expires_at)}` : '已成团' }}</span>
+          <span>{{ groupStatusLabel(p) }}</span>
         </div>
         <div v-else class="productSold">已售 {{ p.sold }}</div>
       </router-link>
@@ -139,12 +147,25 @@ export default {
         : `/shop/${product.id}`
     },
     priceLabel(product) {
-      if (product.item_type === 'group_buy') {
-        return `${formatCoin(product.price_moecoin)} MoeCoin 总价`
-      }
       return product.price_moecoin === 0
         ? '免费'
         : formatCoin(product.price_moecoin)
+    },
+    groupPrice(product) {
+      if (product.status === 'successful') return Number(product.late_price)
+      return Math.ceil(
+        Number(product.price_moecoin) / Number(product.target_count),
+      )
+    },
+    groupPriceLabel(product) {
+      return product.status === 'successful'
+        ? '当前单独购入价'
+        : '当前预付购入价'
+    },
+    groupStatusLabel(product) {
+      if (product.status === 'pending_review') return '等待审核'
+      if (product.status === 'successful') return '已成团'
+      return `截止 ${this.formatDate(product.expires_at)}`
     },
     progress(product) {
       return Math.min(
@@ -287,6 +308,16 @@ export default {
   }
 }
 
+.pendingReviewCard {
+  border: 2px dashed #e2a23b;
+  background: #fffaf0;
+  box-shadow: 0 3px 14px rgba(160, 112, 31, 0.1);
+}
+
+.pendingReviewCard:hover {
+  box-shadow: 0 8px 22px rgba(160, 112, 31, 0.18);
+}
+
 .productCover {
   position: relative;
   height: 110px;
@@ -319,6 +350,42 @@ export default {
   background: rgba(91, 87, 190, 0.9);
   color: #fff;
   font-size: 11px;
+}
+
+.groupPrice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  margin: 0 0 10px;
+  padding: 9px 11px;
+  border: 1px solid #dfe5ff;
+  border-radius: 9px;
+  background: linear-gradient(120deg, #f0f3ff, #f7f2ff);
+
+  .groupPriceLabel {
+    color: #6875a7;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  strong {
+    color: #354fc1;
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  strong small {
+    color: #6471a3;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .groupTotal {
+    margin-top: 2px;
+    color: #8791b5;
+    font-size: 11px;
+  }
 }
 
 .productTitle {

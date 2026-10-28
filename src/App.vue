@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <global-topbar
+      v-if="$route.path.indexOf('/admin') !== 0"
       :user="user"
       :server-on="serverOn"
       :announcement="announcement"

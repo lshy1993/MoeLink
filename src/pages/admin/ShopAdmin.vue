@@ -32,39 +32,11 @@
 
     <!-- 商品管理 -->
     <template v-if="tab === 'products'">
-      <div class="editorCard">
-        <h2>{{ form.id ? '编辑商品 #' + form.id : '上架新商品' }}</h2>
-        <div class="formRow">
-          <InputText v-model="form.title" placeholder="商品名称" maxlength="200" class="titleInput" />
-          <InputText v-model="form.emoji" placeholder="封面 emoji" maxlength="8" class="emojiInput" />
-          <InputNumber v-model="form.price_moecoin" placeholder="价格 MoeCoin" :min="0"
-            :useGrouping="false" class="priceInput" />
-          <InputNumber v-model="form.stock" placeholder="库存(-1不限)" :min="-1"
-            :useGrouping="false" class="stockInput" />
-          <Select v-model="form.status" :options="statusOptions" optionLabel="label"
-            optionValue="value" style="width: 110px" />
-          <Button label="保存" :disabled="!form.title || !canSave" @click="saveProduct" />
-          <Button v-if="form.id" label="新建" severity="secondary" outlined @click="resetForm" />
-        </div>
-        <div style="margin-top: 10px">
-          <InputText v-model="form.image_url" placeholder="图片链接（可选，缺省用 emoji 封面）"
-            maxlength="500" class="w-full" />
-        </div>
-        <div class="editorPane">
-          <div class="editorCol">
-            <div class="paneLabel">商品详情（Markdown）</div>
-            <Textarea v-model="form.content_md" autoResize
-              placeholder="# 商品介绍&#10;&#10;**材质**、尺寸、发货说明等" class="mdInput" />
-          </div>
-          <div class="editorCol">
-            <div class="paneLabel">预览</div>
-            <div class="mdPreview" v-html="previewHtml"></div>
-          </div>
-        </div>
-      </div>
-
       <div class="listCard">
-        <h2>全部商品</h2>
+        <div class="productToolbar">
+          <h2>全部商品</h2>
+          <Button label="上架新商品" icon="pi pi-plus" @click="openCreateDialog" />
+        </div>
         <DataTable :value="products" :loading="loadingProducts" dataKey="id">
           <Column field="id" header="ID" style="width: 52px" />
           <Column header="商品" style="min-width: 200px">
@@ -110,6 +82,44 @@
           </Column>
         </DataTable>
       </div>
+
+      <Dialog v-model:visible="productDialogVisible" modal
+        :header="form.id ? `编辑商品 #${form.id}` : '上架新商品'"
+        :style="{ width: 'min(900px, 94vw)' }"
+        :breakpoints="{ '900px': '96vw' }">
+        <div class="editorCard">
+          <div class="formRow">
+            <InputText v-model="form.title" placeholder="商品名称" maxlength="200" class="titleInput" />
+            <InputText v-model="form.emoji" placeholder="封面 emoji" maxlength="8" class="emojiInput" />
+            <InputNumber v-model="form.price_moecoin" placeholder="价格 MoeCoin" :min="0"
+              :useGrouping="false" class="priceInput" />
+            <InputNumber v-model="form.stock" placeholder="库存(-1不限)" :min="-1"
+              :useGrouping="false" class="stockInput" />
+            <Select v-model="form.status" :options="statusOptions" optionLabel="label"
+              optionValue="value" style="width: 110px" />
+          </div>
+          <div style="margin-top: 10px">
+            <InputText v-model="form.image_url" placeholder="图片链接（可选，缺省用 emoji 封面）"
+              maxlength="500" class="w-full" />
+          </div>
+          <div class="editorPane">
+            <div class="editorCol">
+              <div class="paneLabel">商品详情（Markdown）</div>
+              <Textarea v-model="form.content_md" autoResize
+                placeholder="# 商品介绍&#10;&#10;**材质**、尺寸、发货说明等" class="mdInput" />
+            </div>
+            <div class="editorCol">
+              <div class="paneLabel">预览</div>
+              <div class="mdPreview" v-html="previewHtml"></div>
+            </div>
+          </div>
+        </div>
+        <template #footer>
+          <Button label="取消" severity="secondary" text @click="closeProductDialog" />
+          <Button :label="form.id ? '保存修改' : '创建商品'" icon="pi pi-check"
+            :disabled="!form.title || !canSave" @click="saveProduct" />
+        </template>
+      </Dialog>
     </template>
 
     <!-- 订单管理 -->
@@ -193,6 +203,7 @@ import { marked } from 'marked'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
+import Dialog from 'primevue/dialog'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
@@ -222,6 +233,7 @@ export default {
   components: {
     DataTable,
     Column,
+    Dialog,
     InputText,
     InputNumber,
     Textarea,
@@ -246,6 +258,7 @@ export default {
       stats: null,
       products: [],
       loadingProducts: false,
+      productDialogVisible: false,
       orders: [],
       loadingOrders: false,
       orderStatus: '',
@@ -407,7 +420,15 @@ export default {
         content_md: row.content_md || '',
         status: row.status,
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      this.productDialogVisible = true
+    },
+    openCreateDialog() {
+      this.resetForm()
+      this.productDialogVisible = true
+    },
+    closeProductDialog() {
+      this.productDialogVisible = false
+      this.resetForm()
     },
     async quickPublish(row) {
       await this.updateStatus(row, 'published', '上架')
@@ -582,6 +603,7 @@ export default {
       this.savingSettings = false
     },
     resetForm() {
+      this.productDialogVisible = false
       this.form = {
         id: null,
         title: '',
@@ -676,6 +698,25 @@ export default {
     margin: 0 0 12px;
     font-size: 17px;
     color: #2c3e77;
+  }
+}
+
+.editorCard {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.productToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
   }
 }
 

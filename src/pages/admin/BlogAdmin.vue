@@ -1,7 +1,7 @@
 <template>
   <div class="blogAdminPage">
     <!-- 编辑器 -->
-    <div class="editorCard">
+    <div v-if="form.id || (allowCreate && !createInModal)" class="editorCard">
       <h2>{{ form.id ? '编辑' + heading + ' #' + form.id : '新建' + heading }}</h2>
       <div class="formRow">
         <InputText v-model="form.title" placeholder="标题" maxlength="200" class="titleInput" />
@@ -10,7 +10,7 @@
         <Select v-if="withCategory" v-model="form.category" :options="categoryOptions" optionLabel="label"
           optionValue="value" style="width: 100px" />
         <Button label="保存" :disabled="!form.title || !form.content" @click="save" />
-        <Button v-if="form.id" label="新建" severity="secondary" outlined @click="resetForm" />
+        <Button v-if="form.id && allowCreate" label="新建" severity="secondary" outlined @click="startNew" />
       </div>
       <div style="margin-top: 10px">
         <InputText v-model="form.summary" placeholder="摘要（留空自动截取正文）" maxlength="500" class="w-full" />
@@ -23,19 +23,27 @@
         </div>
         <div class="editorCol">
           <div class="paneLabel">预览</div>
-          <div class="mdPreview" v-html="previewHtml"></div>
+          <div class="mdPreview" v-html="editorPreviewHtml"></div>
         </div>
       </div>
     </div>
 
     <!-- 文章列表 -->
     <div class="listCard">
-      <h2>{{ scope === 'mine' ? '我的' + heading : '全部' + heading }}</h2>
+      <div class="listHeader">
+        <h2>{{ scope === 'mine' ? '我的' + heading : '全部' + heading }}</h2>
+        <Button v-if="allowCreate && createInModal" :label="'新建' + heading" icon="pi pi-plus" @click="openCreateDialog" />
+      </div>
       <DataTable :value="posts" :loading="loading" dataKey="id">
         <Column field="id" header="ID" style="width: 56px" />
         <Column header="标题" style="min-width: 200px">
           <template #body="{ data }">
-            {{ data.title }}
+            <span v-if="quickPreviewEnabled" class="postTitleText">
+              {{ data.title }}
+            </span>
+            <a v-else class="postTitleLink" :href="`${base}/${data.id}`" target="_blank" rel="noopener noreferrer">
+              {{ data.title }}
+            </a>
             <Tag v-if="withCategory" :value="data.category === 'works' ? '作品' : '消息'" severity="info" style="margin-left: 4px" />
             <Tag v-if="data.status === 'published'" value="已发布" severity="success" style="margin-left: 4px" />
             <Tag v-else value="草稿" severity="secondary" style="margin-left: 4px" />
@@ -47,19 +55,63 @@
         <Column header="更新时间" style="width: 100px">
           <template #body="{ data }">{{ formatDate(data.updated_at) }}</template>
         </Column>
-        <Column header="操作" style="width: 170px">
+        <Column header="操作" style="width: 260px">
           <template #body="{ data }">
             <Button label="编辑" size="small" outlined @click="editPost(data)" />
+            <Button v-if="quickPreviewEnabled" label="快速浏览" size="small" text @click="previewPost(data)" />
             <Button label="删除" size="small" severity="danger" outlined style="margin-left: 8px" @click="deletePost(data)" />
           </template>
         </Column>
       </DataTable>
     </div>
+
+    <Dialog v-if="createInModal" v-model:visible="editorDialogVisible" modal
+      :header="'新建' + heading" :style="{ width: 'min(900px, 94vw)' }">
+      <div class="editorCard dialogEditor">
+        <div class="formRow">
+          <InputText v-model="form.title" placeholder="标题" maxlength="200" class="titleInput" />
+          <Select v-model="form.status" :options="statusOptions" optionLabel="label" optionValue="value"
+            style="width: 120px" />
+          <Select v-if="withCategory" v-model="form.category" :options="categoryOptions" optionLabel="label"
+            optionValue="value" style="width: 100px" />
+        </div>
+        <div style="margin-top: 10px">
+          <InputText v-model="form.summary" placeholder="摘要（留空自动截取正文）" maxlength="500" class="w-full" />
+        </div>
+        <div class="editorPane">
+          <div class="editorCol">
+            <div class="paneLabel">Markdown 正文</div>
+            <Textarea v-model="form.content" autoResize
+              placeholder="# 标题&#10;支持 Markdown 语法" class="mdInput" />
+          </div>
+          <div class="editorCol">
+            <div class="paneLabel">预览</div>
+            <div class="mdPreview" v-html="editorPreviewHtml"></div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button label="取消" severity="secondary" text @click="closeCreateDialog" />
+        <Button label="创建文章" icon="pi pi-check" :disabled="!form.title || !form.content" @click="save" />
+      </template>
+    </Dialog>
+
+    <Dialog v-model:visible="previewVisible" modal header="快速浏览文章" :style="{ width: 'min(820px, 92vw)' }">
+      <div v-if="previewPostData" class="quickPreview">
+        <h1>{{ previewPostData.title }}</h1>
+        <div class="previewMeta">
+          作者 {{ previewPostData.author_uid || '—' }} · 更新于 {{ formatDate(previewPostData.updated_at) }}
+        </div>
+        <div v-if="previewLoading" class="previewLoading">正在加载文章内容...</div>
+        <div v-else class="previewContent" v-html="previewHtml"></div>
+      </div>
+    </Dialog>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -68,6 +120,7 @@ import Textarea from 'primevue/textarea';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
+import Dialog from 'primevue/dialog';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { GetApi, GetToken } from '@/utils';
@@ -80,6 +133,9 @@ export default {
     scope: { type: String, default: 'all' },
     withCategory: { type: Boolean, default: false },
     heading: { type: String, default: '文章' },
+    allowCreate: { type: Boolean, default: true },
+    quickPreviewEnabled: { type: Boolean, default: false },
+    createInModal: { type: Boolean, default: false },
   },
   components: {
     DataTable,
@@ -88,7 +144,8 @@ export default {
     Textarea,
     Select,
     Button,
-    Tag
+    Tag,
+    Dialog,
   },
   setup() {
     return {
@@ -100,6 +157,11 @@ export default {
     return {
       posts: [],
       loading: false,
+      editorDialogVisible: false,
+      previewVisible: false,
+      previewLoading: false,
+      previewPostData: null,
+      previewHtml: '',
       statusOptions: [
         { label: '草稿', value: 'draft' },
         { label: '已发布', value: 'published' }
@@ -115,14 +177,14 @@ export default {
       categoryOptions: [
         { label: '消息', value: 'news' },
         { label: '作品', value: 'works' }
-      ]
+      ],
     }
   },
   computed: {
-    previewHtml() {
+    editorPreviewHtml() {
       if (!this.form.content) return '<p class="ph">输入 Markdown 即时预览</p>';
-      return marked.parse(this.form.content);
-    }
+      return DOMPurify.sanitize(marked.parse(this.form.content));
+    },
   },
   mounted() {
     this.load();
@@ -142,6 +204,7 @@ export default {
       this.loading = false;
     },
     async save() {
+      if (!this.form.id && !this.allowCreate) return;
       const payload = {
         title: this.form.title,
         summary: this.form.summary || undefined,
@@ -165,6 +228,7 @@ export default {
       }
     },
     editPost(row) {
+      this.editorDialogVisible = false;
       this.form.id = row.id;
       this.form.title = row.title;
       this.form.summary = row.summary || '';
@@ -179,6 +243,37 @@ export default {
           this.toast.add({ severity: 'error', summary: '加载失败', detail: '正文加载失败', life: 3000 });
         });
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    openCreateDialog() {
+      this.resetForm();
+      this.editorDialogVisible = true;
+    },
+    closeCreateDialog() {
+      this.editorDialogVisible = false;
+      this.resetForm();
+    },
+    startNew() {
+      if (this.createInModal) {
+        this.openCreateDialog();
+        return;
+      }
+      this.resetForm();
+    },
+    async previewPost(row) {
+      this.previewPostData = row;
+      this.previewHtml = '';
+      this.previewLoading = true;
+      this.previewVisible = true;
+      try {
+        const res = await axios.get(GetApi(`${this.base}/post/${row.id}`), { headers: this.headers() });
+        const content = res.data.post?.content_md || '';
+        this.previewHtml = DOMPurify.sanitize(marked.parse(content));
+      } catch (_err) {
+        this.previewVisible = false;
+        this.toast.add({ severity: 'error', summary: '加载失败', detail: '文章内容加载失败', life: 3000 });
+      } finally {
+        this.previewLoading = false;
+      }
     },
     deletePost(row) {
       this.confirmService.require({
@@ -197,17 +292,18 @@ export default {
             .catch(() => {
               this.toast.add({ severity: 'error', summary: '删除失败', life: 3000 });
             });
-        }
+        },
       });
     },
     resetForm() {
+      this.editorDialogVisible = false;
       this.form = { id: null, title: '', summary: '', content: '', status: 'draft', category: 'news' };
     },
     formatDate(d) {
       if (!d) return '—';
       return new Date(d).toLocaleDateString('zh-CN');
     }
-  }
+  },
 }
 </script>
 
@@ -233,6 +329,24 @@ export default {
   }
 }
 
+.dialogEditor {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h2 {
+    margin-bottom: 12px;
+  }
+}
+
 .formRow {
   display: flex;
   gap: 10px;
@@ -241,6 +355,52 @@ export default {
   .titleInput {
     flex: 1;
   }
+}
+
+.postTitleLink {
+  color: #2c3e77;
+  text-decoration: none;
+
+  &:hover {
+    color: #2c53c9;
+    text-decoration: underline;
+  }
+}
+
+.postTitleText {
+  color: #2c3e77;
+}
+
+.quickPreview h1 {
+  margin: 0;
+  color: #2c3e77;
+  font-size: 24px;
+}
+
+.previewMeta {
+  margin: 8px 0 20px;
+  color: #8892b8;
+  font-size: 13px;
+}
+
+.previewContent {
+  color: #333;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+
+  :deep(img) {
+    max-width: 100%;
+  }
+
+  :deep(pre) {
+    overflow: auto;
+  }
+}
+
+.previewLoading {
+  padding: 32px 0;
+  color: #8892b8;
+  text-align: center;
 }
 
 .w-full {

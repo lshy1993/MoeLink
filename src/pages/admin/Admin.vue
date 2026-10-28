@@ -30,7 +30,7 @@
       </nav>
       <div class="adminUser">
         <div>{{ User.info.nickname || User.info.email }}</div>
-        <Button label="退出登录" size="small" severity="secondary" text @click="logOut" />
+        <Button label="退出管理模式" size="small" severity="secondary" text @click="exitAdminMode" />
       </div>
     </aside>
     <main class="adminMain">
@@ -43,7 +43,7 @@
 import axios from 'axios'
 import Button from 'primevue/button'
 import { userInstance as User } from '@/types/User'
-import { ClearToken, GetApi, GetToken } from '@/utils'
+import { GetApi, GetToken } from '@/utils'
 
 export default {
   name: 'AdminLayout',
@@ -78,14 +78,7 @@ export default {
         }
       }
     },
-    async logOut() {
-      try {
-        await axios.post(GetApi('/user/logout'))
-      } catch (_err) {
-        /* ignore */
-      }
-      ClearToken()
-      User.Logout()
+    exitAdminMode() {
       this.$router.replace('/')
     },
   },
@@ -95,7 +88,9 @@ export default {
 <style lang="scss" scoped>
 .adminLayout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .adminAside {
@@ -106,6 +101,8 @@ export default {
   padding: 14px 10px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .adminTitle {
@@ -160,13 +157,16 @@ export default {
   flex: 1;
   padding: 22px 26px;
   min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 @media (max-width: 720px) {
   .adminLayout { flex-direction: column; }
-  .adminAside { width: 100%; flex-direction: row; align-items: center; gap: 10px; }
-  .adminMenu { flex-direction: row; flex: 1; }
-  .adminUser { margin-top: 0; padding: 4px; border-top: none; }
+  .adminAside { width: 100%; flex: 0 0 auto; flex-direction: row; align-items: center; gap: 10px; }
+  .adminMenu { flex-direction: row; flex: 1; overflow-x: auto; }
+  .adminUser { margin-top: 0; padding: 4px; border-top: none; flex: 0 0 auto; }
   .adminUser button { width: auto; }
+  .adminMain { flex: 1; }
 }
 </style>

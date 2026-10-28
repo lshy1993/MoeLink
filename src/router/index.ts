@@ -150,12 +150,13 @@ const routes: Array<RouteRecordRaw> = [
         path: 'blog',
         name: 'admin-blog',
         component: () => import('../pages/admin/BlogAdmin.vue'),
+        props: { scope: 'all', heading: '博客文章', allowCreate: false, quickPreviewEnabled: true },
       },
       {
         path: 'miao',
         name: 'admin-miao',
         component: () => import('../pages/admin/BlogAdmin.vue'),
-        props: { base: '/miao', withCategory: true, heading: '小屋文章' },
+        props: { base: '/miao', withCategory: true, heading: '小屋文章', createInModal: true },
       },
       {
         path: 'threads',

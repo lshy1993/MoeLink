@@ -6,48 +6,6 @@
       多条公告同时生效时，只展示最新发布的一条，其余归入历史。
     </p>
 
-    <section class="editor">
-      <h3>{{ form.id ? `编辑公告 #${form.id}` : '新建公告' }}</h3>
-      <div class="formGrid">
-        <label>类型</label>
-        <div class="radios">
-          <label><input v-model="form.kind" type="radio" value="text" :disabled="!!form.id" /> 纯文字</label>
-          <label><input v-model="form.kind" type="radio" value="image" :disabled="!!form.id" /> 纯图片</label>
-        </div>
-
-        <label>{{ form.kind === 'image' ? '备注名（仅后台可见）' : '标题' }}</label>
-        <InputText v-model="form.title" maxlength="200" fluid />
-
-        <template v-if="form.kind === 'text'">
-          <label>正文</label>
-          <Textarea v-model="form.content" rows="6" maxlength="5000" fluid />
-        </template>
-        <template v-else>
-          <label>图片</label>
-          <div>
-            <input ref="file" type="file" accept="image/png,image/jpeg,image/gif,image/webp" @change="onFile" />
-            <div class="dim">PNG / JPEG / GIF / WebP，不超过 3MB{{ form.id ? '；不选择则保留原图' : '' }}</div>
-            <img v-if="form.imagePreview" :src="form.imagePreview" class="thumb" alt="预览" />
-          </div>
-        </template>
-
-        <label>发布方式</label>
-        <div class="radios">
-          <template v-if="!form.id || form.status === 'scheduled'">
-            <label><input v-model="form.mode" type="radio" value="now" /> 立即发布</label>
-            <label><input v-model="form.mode" type="radio" value="schedule" /> 定时发布</label>
-            <input v-if="form.mode === 'schedule'" v-model="form.publishAt" type="datetime-local" class="dt" />
-          </template>
-          <span v-else class="dim">已发布，发布时间不可修改</span>
-        </div>
-      </div>
-      <div class="actions">
-        <Button :label="form.id ? '保存修改' : (form.mode === 'now' ? '立即发布' : '创建定时公告')" icon="pi pi-check" :loading="saving" @click="save" />
-        <Button label="预览" icon="pi pi-eye" severity="secondary" outlined @click="previewForm" />
-        <Button v-if="form.id" label="取消编辑" severity="secondary" text @click="resetForm" />
-      </div>
-    </section>
-
     <div class="toolbar">
       <button
         v-for="t in tabs"
@@ -59,6 +17,7 @@
         {{ t.label }}<span v-if="count(t.value) !== null" class="cnt">{{ count(t.value) }}</span>
       </button>
       <span class="spacer"></span>
+      <Button label="新建公告" icon="pi pi-plus" size="small" @click="openCreateDialog" />
       <Button label="刷新" icon="pi pi-refresh" size="small" severity="secondary" outlined @click="load" />
     </div>
 
@@ -94,6 +53,54 @@
       <template #empty>暂无公告</template>
     </DataTable>
 
+    <Dialog v-model:visible="editorVisible" modal
+      :header="form.id ? `编辑公告 #${form.id}` : '新建公告'"
+      :style="{ width: 'min(720px, 94vw)' }"
+      :breakpoints="{ '720px': '96vw' }"
+      @hide="resetForm">
+      <section class="editor">
+        <div class="formGrid">
+          <label>类型</label>
+          <div class="radios">
+            <label><input v-model="form.kind" type="radio" value="text" :disabled="!!form.id" /> 纯文字</label>
+            <label><input v-model="form.kind" type="radio" value="image" :disabled="!!form.id" /> 纯图片</label>
+          </div>
+
+          <label>{{ form.kind === 'image' ? '备注名（仅后台可见）' : '标题' }}</label>
+          <InputText v-model="form.title" maxlength="200" fluid />
+
+          <template v-if="form.kind === 'text'">
+            <label>正文</label>
+            <Textarea v-model="form.content" rows="6" maxlength="5000" fluid />
+          </template>
+          <template v-else>
+            <label>图片</label>
+            <div>
+              <input ref="file" type="file" accept="image/png,image/jpeg,image/gif,image/webp" @change="onFile" />
+              <div class="dim">PNG / JPEG / GIF / WebP，不超过 3MB{{ form.id ? '；不选择则保留原图' : '' }}</div>
+              <img v-if="form.imagePreview" :src="form.imagePreview" class="thumb" alt="预览" />
+            </div>
+          </template>
+
+          <label>发布方式</label>
+          <div class="radios">
+            <template v-if="!form.id || form.status === 'scheduled'">
+              <label><input v-model="form.mode" type="radio" value="now" /> 立即发布</label>
+              <label><input v-model="form.mode" type="radio" value="schedule" /> 定时发布</label>
+              <input v-if="form.mode === 'schedule'" v-model="form.publishAt" type="datetime-local" class="dt" />
+            </template>
+            <span v-else class="dim">已发布，发布时间不可修改</span>
+          </div>
+        </div>
+      </section>
+      <template #footer>
+        <Button label="预览" icon="pi pi-eye" severity="secondary" outlined @click="previewForm" />
+        <Button label="取消" severity="secondary" text @click="closeEditor" />
+        <Button :label="form.id ? '保存修改' : (form.mode === 'now' ? '立即发布' : '创建定时公告')"
+          icon="pi pi-check" :loading="saving" @click="save" />
+      </template>
+    </Dialog>
+
     <announcement-popup :announcement="preview" :visible="!!preview" :image-src="previewImage" @close="closePreview" />
   </div>
 </template>
@@ -103,6 +110,7 @@ import axios from 'axios'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
+import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import Textarea from 'primevue/textarea'
@@ -133,7 +141,16 @@ const emptyForm = () => ({
 
 export default {
   name: 'AdminAnnouncements',
-  components: { Button, Column, DataTable, InputText, Tag, Textarea, AnnouncementPopup },
+  components: {
+    Button,
+    Column,
+    DataTable,
+    Dialog,
+    InputText,
+    Tag,
+    Textarea,
+    AnnouncementPopup,
+  },
   setup() {
     return { toast: useToast(), confirmService: useConfirm() }
   },
@@ -144,6 +161,7 @@ export default {
       filter: '',
       loading: false,
       saving: false,
+      editorVisible: false,
       form: emptyForm(),
       preview: null,
       previewImage: '',
@@ -245,7 +263,7 @@ export default {
           await axios.post(GetApi('/announcement/admin'), { ...payload, kind: f.kind }, { headers: this.headers() })
         }
         this.toast.add({ severity: 'success', summary: f.id ? '已保存' : '已创建', life: 2000 })
-        this.resetForm()
+        this.closeEditor()
         this.load()
       } catch (err) {
         this.toast.add({ severity: 'error', summary: '保存失败', detail: this.errMsg(err, '保存失败'), life: 3500 })
@@ -263,8 +281,16 @@ export default {
         mode: row.status === 'scheduled' ? 'schedule' : 'now',
         publishAt: row.status === 'scheduled' ? this.toLocalInput(row.publish_at) : '',
       }
+      this.editorVisible = true
       if (row.kind === 'image') this.form.imagePreview = await this.fetchImage(row.id)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    openCreateDialog() {
+      this.resetForm()
+      this.editorVisible = true
+    },
+    closeEditor() {
+      this.editorVisible = false
+      this.resetForm()
     },
     toLocalInput(iso) {
       const d = new Date(iso)
@@ -272,6 +298,7 @@ export default {
       return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
     },
     resetForm() {
+      if (this.form.imagePreview.startsWith('blob:')) URL.revokeObjectURL(this.form.imagePreview)
       this.form = emptyForm()
       if (this.$refs.file) this.$refs.file.value = ''
     },
