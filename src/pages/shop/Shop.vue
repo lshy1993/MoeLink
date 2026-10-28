@@ -3,38 +3,66 @@
     <header class="pageHead">
       <div>
         <h1>EC 商城</h1>
-        <p>用 MoeCoin 兑换心仪的周边与商品</p>
+        <p>浏览商城商品与拼团商品，用 MoeCoin 购买心仪好物</p>
       </div>
       <div class="headActions">
+        <router-link v-if="logined" class="myOrdersLink publishLink" to="/shop/groups/new">
+          <i class="pi pi-plus"></i>发布拼团商品
+        </router-link>
         <router-link v-if="logined" class="myOrdersLink" to="/shop/orders">
           <i class="pi pi-list"></i>我的订单
         </router-link>
       </div>
     </header>
 
+    <form class="searchBar" @submit.prevent="searchProducts">
+      <label class="searchInput">
+        <i class="pi pi-search"></i>
+        <input v-model="searchInput" type="search" maxlength="100" placeholder="搜索商品名称或介绍">
+      </label>
+      <Button type="submit" label="搜索" icon="pi pi-search" :loading="loading" />
+      <Button v-if="search" label="清除" severity="secondary" outlined @click="clearSearch" />
+    </form>
+
     <div v-if="products.length" class="productGrid">
-      <router-link v-for="p in products" :key="p.id" class="productCard" :to="'/shop/' + p.id">
+      <router-link
+        v-for="p in products"
+        :key="`${p.item_type || 'product'}-${p.id}`"
+        class="productCard"
+        :to="productLink(p)"
+      >
         <div class="productCover">
-          <span class="productEmoji">{{ p.emoji || '🛍️' }}</span>
+          <img v-if="p.image_url" :src="p.image_url" :alt="p.title">
+          <span v-else class="productEmoji">{{ p.emoji || '🛍️' }}</span>
+          <span v-if="p.item_type === 'group_buy'" class="typeBadge">拼团商品</span>
         </div>
         <h2 class="productTitle">{{ p.title }}</h2>
         <div class="productMeta">
           <span class="priceChip">
-            <i class="pi pi-wallet"></i>{{ p.price_moecoin === 0 ? '免费' : formatCoin(p.price_moecoin) }}
+            <i class="pi pi-wallet"></i>{{ priceLabel(p) }}
           </span>
-          <span class="stockInfo">{{ stockLabel(p) }}</span>
+          <span class="stockInfo">{{ p.item_type === 'group_buy' ? '拼团' : stockLabel(p) }}</span>
         </div>
-        <div class="productSold">已售 {{ p.sold }}</div>
+        <div v-if="p.item_type === 'group_buy'" class="groupProgress">
+          <span>{{ p.member_count }}/{{ p.target_count }} 人</span>
+          <ProgressBar :value="progress(p)" :showValue="false" />
+          <span>{{ p.status === 'open' ? `截止 ${formatDate(p.expires_at)}` : '已成团' }}</span>
+        </div>
+        <div v-else class="productSold">已售 {{ p.sold }}</div>
       </router-link>
     </div>
 
     <div v-else-if="!loading" class="emptyBox">
-      <i class="pi pi-shopping-bag emptyIcon"></i>
-      <p>货架空空如也，商品上架中</p>
+      <i class="pi pi-search emptyIcon"></i>
+      <p>{{ search ? '没有找到匹配的商品' : '货架空空如也，商品上架中' }}</p>
     </div>
 
-    <div class="pager" v-if="products.length && products.length < total">
-      <Button label="加载更多" text :loading="loading" @click="loadMore" />
+    <div v-if="total > pageSize" class="pager">
+      <Button label="上一页" icon="pi pi-chevron-left" severity="secondary" outlined
+        :disabled="page === 1 || loading" @click="changePage(page - 1)" />
+      <span>第 {{ page }} / {{ pageCount }} 页 · 共 {{ total }} 件商品</span>
+      <Button label="下一页" icon="pi pi-chevron-right" iconPos="right" severity="secondary" outlined
+        :disabled="page >= pageCount || loading" @click="changePage(page + 1)" />
     </div>
   </div>
 </template>
@@ -42,6 +70,7 @@
 <script>
 import axios from 'axios'
 import Button from 'primevue/button'
+import ProgressBar from 'primevue/progressbar'
 import { formatCoin } from '@/pages/wallet/shared'
 import { GetApi, GetToken } from '@/utils'
 
@@ -49,15 +78,23 @@ const PAGE_SIZE = 24
 
 export default {
   name: 'ShopPage',
-  components: { Button },
+  components: { Button, ProgressBar },
   data() {
     return {
       products: [],
       total: 0,
-      offset: 0,
+      page: 1,
+      pageSize: PAGE_SIZE,
+      search: '',
+      searchInput: '',
       loading: false,
       logined: !!GetToken(),
     }
+  },
+  computed: {
+    pageCount() {
+      return Math.max(1, Math.ceil(this.total / this.pageSize))
+    },
   },
   mounted() {
     this.load()
@@ -68,21 +105,60 @@ export default {
       this.loading = true
       try {
         const res = await axios.get(GetApi('/shop/products'), {
-          params: { limit: PAGE_SIZE, offset: this.offset },
+          params: {
+            limit: this.pageSize,
+            offset: (this.page - 1) * this.pageSize,
+            search: this.search || undefined,
+          },
         })
-        this.products =
-          this.offset === 0
-            ? res.data.products || []
-            : this.products.concat(res.data.products || [])
+        this.products = res.data.products || []
         this.total = res.data.total || 0
       } catch (err) {
         console.error('商品列表加载失败', err)
       }
       this.loading = false
     },
-    loadMore() {
-      this.offset += PAGE_SIZE
+    searchProducts() {
+      this.search = this.searchInput.trim()
+      this.page = 1
       this.load()
+    },
+    clearSearch() {
+      this.searchInput = ''
+      this.search = ''
+      this.page = 1
+      this.load()
+    },
+    changePage(page) {
+      this.page = page
+      this.load()
+    },
+    productLink(product) {
+      return product.item_type === 'group_buy'
+        ? `/shop/groups/${product.id}`
+        : `/shop/${product.id}`
+    },
+    priceLabel(product) {
+      if (product.item_type === 'group_buy') {
+        return `${formatCoin(product.price_moecoin)} MoeCoin 总价`
+      }
+      return product.price_moecoin === 0
+        ? '免费'
+        : formatCoin(product.price_moecoin)
+    },
+    progress(product) {
+      return Math.min(
+        100,
+        Math.round(
+          (Number(product.member_count) / Number(product.target_count)) * 100,
+        ),
+      )
+    },
+    formatDate(value) {
+      return new Date(value).toLocaleString('zh-CN', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
     },
     stockLabel(p) {
       if (p.stock === -1) return '库存充足'
@@ -139,6 +215,55 @@ export default {
   }
 }
 
+.headActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.publishLink {
+  border-color: #4a6fe3;
+  background: #4a6fe3;
+  color: #fff;
+
+  &:hover {
+    border-color: #3658c6;
+    background: #3658c6;
+  }
+}
+
+.searchBar {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.searchInput {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid #e3e9f8;
+  border-radius: 9px;
+  background: #fff;
+  color: #929bbc;
+
+  input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #45507a;
+    font: inherit;
+    font-size: 13px;
+  }
+}
+
 .productGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -163,6 +288,7 @@ export default {
 }
 
 .productCover {
+  position: relative;
   height: 110px;
   border-radius: 9px;
   background: linear-gradient(135deg, #f2f5ff, #f7f1ff);
@@ -175,6 +301,24 @@ export default {
     font-size: 52px;
     line-height: 1;
   }
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 9px;
+    object-fit: cover;
+  }
+}
+
+.typeBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(91, 87, 190, 0.9);
+  color: #fff;
+  font-size: 11px;
 }
 
 .productTitle {
@@ -227,6 +371,20 @@ export default {
   color: #b0b7d6;
 }
 
+.groupProgress {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 11px;
+  color: #8993b5;
+  font-size: 10.5px;
+
+  :deep(.p-progressbar) {
+    height: 6px;
+  }
+}
+
 .emptyBox {
   text-align: center;
   color: #8892b8;
@@ -245,7 +403,43 @@ export default {
 }
 
 .pager {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   padding: 18px 0;
+
+  span {
+    color: #7882a4;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .pageHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .searchBar {
+    flex-wrap: wrap;
+  }
+
+  .searchInput {
+    flex-basis: 100%;
+  }
+
+  .pager {
+    gap: 7px;
+
+    :deep(.p-button-label) {
+      font-size: 11px;
+    }
+
+    span {
+      font-size: 10.5px;
+      text-align: center;
+    }
+  }
 }
 </style>

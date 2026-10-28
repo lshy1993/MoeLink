@@ -10,7 +10,10 @@
     </div>
 
     <template v-else>
-      <h1 class="pageTitle">我的订单</h1>
+      <header class="pageHead">
+        <h1 class="pageTitle">我的订单</h1>
+        <router-link class="groupOrdersLink" to="/shop/my-groups">我的拼团记录</router-link>
+      </header>
 
       <div v-if="orders.length" class="orderList">
         <div v-for="o in orders" :key="o.id" class="orderCard">
@@ -149,6 +152,23 @@ export default {
   margin: 0 0 16px;
   font-size: 26px;
   color: #2c3e77;
+}
+
+.pageHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.groupOrdersLink {
+  color: #4a6fe3;
+  font-size: 13px;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .orderList {

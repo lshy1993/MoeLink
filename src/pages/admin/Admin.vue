@@ -18,8 +18,11 @@
         <router-link to="/admin/moecoin" class="adminLink" :class="{ active: $route.path.indexOf('/admin/moecoin') === 0 }">
           <span>🪙 MoeCoin 管理</span>
         </router-link>
-        <router-link to="/admin/shop" class="adminLink" :class="{ active: $route.path.indexOf('/admin/shop') === 0 }">
+        <router-link to="/admin/shop" class="adminLink" :class="{ active: $route.path === '/admin/shop' }">
           <span>🛒 EC 管理</span>
+        </router-link>
+        <router-link to="/admin/shop/group-buys" class="adminLink" :class="{ active: $route.path.indexOf('/admin/shop/group-buys') === 0 }">
+          <span>👥 拼团审核</span>
         </router-link>
         <router-link to="/admin/announcements" class="adminLink" :class="{ active: $route.path.indexOf('/admin/announcements') === 0 }">
           <span>📢 全局公告</span>

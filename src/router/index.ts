@@ -75,6 +75,25 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../pages/shop/MyOrders.vue'),
   },
   {
+    path: '/shop/groups',
+    redirect: '/shop',
+  },
+  {
+    path: '/shop/groups/new',
+    name: 'shop-group-new',
+    component: () => import('../pages/shop/GroupBuyCreate.vue'),
+  },
+  {
+    path: '/shop/groups/:id(\\d+)',
+    name: 'shop-group-detail',
+    component: () => import('../pages/shop/GroupBuyDetail.vue'),
+  },
+  {
+    path: '/shop/my-groups',
+    name: 'shop-my-groups',
+    component: () => import('../pages/shop/MyGroupBuys.vue'),
+  },
+  {
     path: '/shop/:id(\\d+)',
     name: 'shop-detail',
     component: () => import('../pages/shop/ProductDetail.vue'),
@@ -152,6 +171,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'shop',
         name: 'admin-shop',
         component: () => import('../pages/admin/ShopAdmin.vue'),
+      },
+      {
+        path: 'shop/group-buys',
+        name: 'admin-shop-group-buys',
+        component: () => import('../pages/admin/ShopGroupBuys.vue'),
       },
       {
         path: 'announcements',
