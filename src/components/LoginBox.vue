@@ -16,7 +16,7 @@
             <button type="button" class="btn-primary clickable" @click="handleLogin()">
                 <span>{{ email ? registerMode ? "注册" : "登录" : "注册 or 登录" }}</span>
             </button>
-            <div class="tipLine">统一账号同时适用于 MoeLink 与测试站</div>
+            <div class="tipLine">统一账号同时适用于 MoeLink 与原神问答</div>
             <div class="tipLine">首次使用？输入邮箱与密码后将自动进入注册</div>
         </form>
     </div>

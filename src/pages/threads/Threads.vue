@@ -53,7 +53,7 @@ import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import { useToast } from 'primevue/usetoast'
 import { GetApi, GetToken } from '@/utils'
-import { categoryMeta, formatTime, THREAD_CATEGORIES } from './shared'
+import { categoryMeta, formatTime, loadThreadCategories, threadCategories } from './shared'
 
 const PAGE_SIZE = 20
 
@@ -70,10 +70,18 @@ export default {
       offset: 0,
       category: '',
       loading: false,
-      categoryFilters: [{ value: '', label: '全部' }, ...THREAD_CATEGORIES],
     }
   },
+  computed: {
+    categoryFilters() {
+      return [
+        { value: '', label: '全部' },
+        ...threadCategories.value.filter((c) => c.active),
+      ]
+    },
+  },
   mounted() {
+    loadThreadCategories()
     this.load()
   },
   methods: {

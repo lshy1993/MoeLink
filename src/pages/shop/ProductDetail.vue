@@ -1,6 +1,6 @@
 <template>
   <div class="productDetailPage">
-    <router-link class="backLink" to="/shop">← 返回商城</router-link>
+    <router-link class="backLink" to="/shop">← 返回萌购</router-link>
 
     <template v-if="product">
       <div class="detailCard">
@@ -70,7 +70,7 @@
     <div v-else-if="!loading" class="notFound">
       <i class="pi pi-exclamation-circle"></i>
       <p>商品不存在或已下架</p>
-      <router-link to="/shop">返回商城</router-link>
+      <router-link to="/shop">返回萌购</router-link>
     </div>
   </div>
 </template>
@@ -224,7 +224,7 @@ export default {
         this.walletBalance = res.data.balance
         this.buyOn = false
         this.load()
-        this.$router.push('/shop/orders')
+        this.$router.push('/orders')
       } catch (err) {
         const msg = err.response?.data?.error || '购买失败'
         this.toast.add({

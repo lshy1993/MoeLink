@@ -13,10 +13,21 @@
                 {{ thread.bounty_awarded_to ? `悬赏已采纳 +${thread.bounty}` : `悬赏 ${thread.bounty} MoeCoin` }}
               </span>
             </div>
-            <Button v-if="canDelete(thread)" label="删除帖子" icon="pi pi-trash" severity="danger"
-              text size="small" @click="removeThread" />
+            <div class="headActions">
+              <template v-if="canModerate">
+                <Button :label="thread.is_pinned ? '取消置顶' : '置顶'" icon="pi pi-bookmark" severity="secondary"
+                  text size="small" @click="toggleFlag('pin')" />
+                <Button :label="thread.is_locked ? '解除锁定' : '锁定'" :icon="thread.is_locked ? 'pi pi-lock-open' : 'pi pi-lock'"
+                  severity="secondary" text size="small" @click="toggleFlag('lock')" />
+              </template>
+              <Button v-if="canDelete(thread)" label="删除帖子" icon="pi pi-trash" severity="danger"
+                text size="small" @click="removeThread" />
+            </div>
           </div>
-          <h1 class="title">{{ thread.title }}</h1>
+          <h1 class="title">
+            {{ thread.title }}
+            <i v-if="thread.is_locked" class="pi pi-lock lockedIcon" title="已锁定"></i>
+          </h1>
           <div class="meta">
             <span><i class="pi pi-user"></i>{{ thread.author_name }}</span>
             <span><i class="pi pi-clock"></i>{{ formatTime(thread.created_at) }}</span>
@@ -72,8 +83,18 @@
         </Dialog>
 
         <div v-if="logined" class="replyComposer">
-          <Textarea v-model="replyContent" class="replyInput" rows="4" autoResize
+          <div class="replyEditorTabs">
+            <Button label="编辑" size="small" text :severity="replyPreview ? 'secondary' : 'primary'"
+              :outlined="!replyPreview" @click="replyPreview = false" />
+            <Button label="预览" size="small" text :severity="replyPreview ? 'primary' : 'secondary'"
+              :outlined="replyPreview" @click="replyPreview = true" />
+          </div>
+          <Textarea v-if="!replyPreview" v-model="replyContent" class="replyInput" rows="4" autoResize
             placeholder="写下你的回复（支持 Markdown）" />
+          <div v-else class="replyMarkdownPreview markdownBody">
+            <div v-if="replyContent.trim()" v-html="render(replyContent)"></div>
+            <span v-else class="previewPlaceholder">输入回复内容后可在此预览 Markdown 效果</span>
+          </div>
           <div class="composerActions">
             <span class="hint">Enter 换行，点击按钮发送</span>
             <Button label="发表回复" icon="pi pi-send" :loading="submitting"
@@ -108,7 +129,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { formatCoin } from '@/pages/wallet/shared'
 import { GetApi, GetToken } from '@/utils'
-import { categoryMeta, formatTime } from './shared'
+import { categoryMeta, formatTime, loadThreadCategories } from './shared'
 
 export default {
   name: 'ThreadDetail',
@@ -128,7 +149,10 @@ export default {
       logined: !!GetToken(),
       myUid: null,
       myGroup: 0,
+      modAdmin: false,
+      modCategories: [],
       replyContent: '',
+      replyPreview: false,
       submitting: false,
       // 回复打赏
       tipOn: false,
@@ -140,12 +164,18 @@ export default {
     }
   },
   computed: {
+    canModerate() {
+      if (!this.logined || !this.thread) return false
+      return this.modAdmin || this.modCategories.includes(this.thread.category)
+    },
     threadHtml() {
       return this.thread ? this.render(this.thread.content_md) : ''
     },
   },
   mounted() {
+    loadThreadCategories()
     this.loadMe()
+    this.loadModeration()
     this.load()
     if (this.logined) this.loadWallet()
   },
@@ -302,8 +332,40 @@ export default {
      */
     canDelete(item) {
       if (!this.logined) return false
-      if (this.myGroup >= 100) return true
+      if (this.canModerate) return true
       return this.myUid !== null && Number(item.author_uid) === this.myUid
+    },
+    async loadModeration() {
+      if (!this.logined) return
+      try {
+        const res = await axios.get(GetApi('/thread/me/moderation'), {
+          headers: { Authorization: `Bearer ${GetToken()}` },
+        })
+        this.modAdmin = !!res.data.admin
+        this.modCategories = res.data.categories || []
+      } catch (_err) {
+        /* 静默：按普通用户处理 */
+      }
+    },
+    async toggleFlag(flag) {
+      const key = flag === 'pin' ? 'is_pinned' : 'is_locked'
+      try {
+        const res = await axios.post(
+          GetApi(`/thread/${this.thread.id}/${flag}`),
+          { value: !this.thread[key] },
+          { headers: { Authorization: `Bearer ${GetToken()}` } },
+        )
+        this.thread.is_pinned = res.data.is_pinned
+        this.thread.is_locked = res.data.is_locked
+        this.toast.add({ severity: 'success', summary: '已更新', life: 1500 })
+      } catch (err) {
+        this.toast.add({
+          severity: 'error',
+          summary: '操作失败',
+          detail: err.response?.data?.error || '请稍后重试',
+          life: 3000,
+        })
+      }
     },
     removeThread() {
       this.confirmService.require({
@@ -430,6 +492,19 @@ export default {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 8px;
+}
+
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.lockedIcon {
+  margin-left: 6px;
+  font-size: 16px;
+  color: #9aa2c5;
 }
 
 .headTags {
@@ -633,6 +708,26 @@ export default {
 
 .replyInput {
   width: 100%;
+}
+
+.replyEditorTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #e6e9f5;
+}
+
+.replyMarkdownPreview {
+  min-height: 100px;
+  padding: 10px 12px;
+  border: 1px solid #dfe4f2;
+  border-radius: 6px;
+  background: #fbfcff;
+}
+
+.previewPlaceholder {
+  color: #9aa2c5;
+  font-size: 13px;
 }
 
 .composerActions {

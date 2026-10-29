@@ -1,6 +1,6 @@
 <template>
   <div class="detailPage">
-    <router-link class="backLink" to="/shop">← 返回商城</router-link>
+    <router-link class="backLink" to="/shop">← 返回萌购</router-link>
     <div v-if="group" class="detailCard">
       <div class="hero">
         <img v-if="group.image_url" :src="group.image_url" :alt="group.title">

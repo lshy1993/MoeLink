@@ -23,35 +23,58 @@
     </div>
 
     <DataTable :value="users" :loading="loading" dataKey="id" scrollable class="userTable">
-      <Column field="id" header="ID" style="width: 56px" />
-      <Column header="邮箱" style="min-width: 240px">
+      <Column field="id" header="ID" style="width: 60px" />
+      <Column header="邮箱 / UUID" style="width: 250px">
         <template #body="{ data }">
-          <span class="copyCell">
-            <span class="cellText" :title="data.email">{{ data.email }}</span>
-            <button class="copyBtn" title="复制邮箱" @click="copyText(data.email, '邮箱')">
-              <i class="pi pi-copy"></i>
-            </button>
-          </span>
+          <div class="acctWrap">
+            <Avatar :image="data.avatar_url || undefined"
+              :label="data.avatar_url ? undefined : (nickOf(data) || data.email || '?').slice(0, 1).toUpperCase()"
+              shape="circle" />
+            <div class="acctCell">
+            <span class="copyCell">
+              <span class="acctEmail">{{ data.email }}</span>
+              <button class="copyBtn" title="复制邮箱" @click="copyText(data.email, '邮箱')">
+                <i class="pi pi-copy"></i>
+              </button>
+            </span>
+            <span class="copyCell">
+              <span class="acctUid" :title="data.user_uuid">{{ data.user_uuid }}</span>
+              <button v-if="data.user_uuid" class="copyBtn" title="复制 UUID" @click="copyText(data.user_uuid, 'UUID')">
+                <i class="pi pi-copy"></i>
+              </button>
+            </span>
+          </div>
+          </div>
         </template>
       </Column>
-      <Column header="昵称" style="min-width: 110px">
-        <template #body="{ data }">{{ data.display_name || data.nickname || '—' }}</template>
-      </Column>
-      <Column header="UUID" style="width: 180px">
+      <Column header="昵称" style="width: 180px">
         <template #body="{ data }">
-          <span class="copyCell">
-            <span class="uuid" :title="data.user_uuid">{{ shortUuid(data.user_uuid) }}</span>
-            <button class="copyBtn" title="复制完整 UUID" @click="copyText(data.user_uuid, 'UUID')">
-              <i class="pi pi-copy"></i>
-            </button>
-          </span>
+          <span class="nickCell" :title="nickOf(data)">{{ nickOf(data) }}</span>
         </template>
       </Column>
-      <Column header="角色" style="width: 130px">
+      <Column header="权限" style="width: 130px">
         <template #body="{ data }">
-          <Select :modelValue="data.user_role" :options="roleOptions" optionLabel="label"
-            optionValue="value" :disabled="data.id === myUid" size="small" class="roleSelect"
-            :title="data.id === myUid ? '不能修改自己的角色' : ''" @update:modelValue="(v) => onRoleChange(data, v)" />
+          <Tag :severity="data.user_role === 1 ? 'danger' : 'secondary'"
+            :value="data.user_role === 1 ? '管理员' : '普通用户'" class="roleTag"
+            :class="{ roleTagDisabled: data.id === myUid }" v-tooltip.top="data.id === myUid ? '不能修改自己的权限' : '点击修改权限'"
+            @click="openRole(data)" />
+          <Tag v-if="data.user_role !== 1 && data.moderated.length" severity="info" class="roleTag modTag"
+            :value="'版主 ' + data.moderated.length" @click="openRole(data)" />
+        </template>
+      </Column>
+      <Column header="状态" style="width: 190px">
+        <template #body="{ data }">
+          <div class="statusCell">
+            <Tag v-if="data.ban" severity="danger" :value="'封号 ' + untilText(data.ban)"
+              v-tooltip.top="data.ban.reason || '无理由'" />
+            <Tag v-if="data.mute" severity="warn" :value="'禁言 ' + untilText(data.mute)"
+              v-tooltip.top="data.mute.reason || '无理由'" />
+            <span v-if="!data.ban && !data.mute" class="okText">正常</span>
+            <button v-if="data.id !== myUid && data.user_role !== 1" class="coinGrantBtn" title="禁言 / 封号"
+              @click="openSanction(data)">
+              <i class="pi pi-ban"></i>
+            </button>
+          </div>
         </template>
       </Column>
       <Column header="MoeCoin" style="width: 110px">
@@ -63,21 +86,17 @@
           </button>
         </template>
       </Column>
-      <Column header="答题" style="width: 100px">
-        <template #body="{ data }">{{ data.correct_submissions }}/{{ data.total_submissions }}</template>
+      <Column header="发帖 / 回复" style="width: 110px">
+        <template #body="{ data }">{{ data.thread_count }} / {{ data.reply_count }}</template>
       </Column>
-      <Column field="questions_created" header="出题" style="width: 64px" />
-      <Column field="total_votes" header="投票" style="width: 64px" />
-      <Column header="注册时间" style="width: 100px">
-        <template #body="{ data }">{{ formatDate(data.created_at) }}</template>
-      </Column>
-      <Column header="最近登录" style="width: 150px">
+      <Column header="注册 / 登录" style="width: 130px">
         <template #body="{ data }">
-          <template v-if="data.last_login_at">
-            {{ formatDate(data.last_login_at) }}
-            <div class="ip">{{ data.last_login_ip || '' }}</div>
-          </template>
-          <template v-else>—</template>
+          <div class="timeCell">
+            <span v-tooltip.top="'注册于 ' + formatMinute(data.created_at)">{{ formatDate(data.created_at) }}</span>
+            <span class="timeLogin" v-tooltip.top="data.last_login_at ? '登录于 ' + formatMinute(data.last_login_at) + (data.last_login_ip ? ' · ' + data.last_login_ip : '') : '从未登录'">
+              {{ data.last_login_at ? formatDate(data.last_login_at) : '—' }}
+            </span>
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -85,6 +104,77 @@
     <div class="pager" v-if="users.length && users.length < total">
       <button @click="loadMore">加载更多（{{ users.length }}/{{ total }}）</button>
     </div>
+
+    <!-- 修改权限弹窗 -->
+    <Dialog v-model:visible="roleOn" header="权限" modal :style="{ width: '380px' }">
+      <div v-if="roleTarget">
+        <div class="roleHead">
+          <Chip :label="String(roleTarget.id)" class="idChip" />
+          <b>{{ nickOf(roleTarget) || roleTarget.email }}</b>
+        </div>
+        <div class="roleChoices">
+          <button v-for="r in roleOptions" :key="r.value" type="button" class="roleChoice"
+            :class="{ active: roleDraft === r.value }" @click="roleDraft = r.value">
+            <Tag :severity="r.value === 1 ? 'danger' : 'secondary'" :value="r.label" />
+            <small>{{ r.value === 1 ? '可访问全部管理后台' : '无后台权限' }}</small>
+          </button>
+        </div>
+        <Divider />
+        <div class="modSection">
+          <div class="modIntro">版主分区</div>
+          <div v-if="roleTarget.user_role === 1" class="modIntro">管理员拥有全部分区的管理权限。</div>
+          <div v-else-if="roleTarget.moderated.length" class="modTags">
+            <Tag v-for="c in roleTarget.moderated" :key="c.slug" :value="c.name" severity="info" />
+          </div>
+          <div v-else class="modIntro">未担任任何分区的版主。</div>
+          <small class="sanctionHint">任命或移除请在「讨论区」后台的分区管理中操作。</small>
+        </div>
+      </div>
+      <template #footer>
+        <Button label="取消" severity="secondary" text @click="roleOn = false" />
+        <Button label="保存" :disabled="!roleTarget || roleDraft === roleTarget.user_role" @click="saveRole" />
+      </template>
+    </Dialog>
+
+    <!-- 禁言 / 封号弹窗 -->
+    <Dialog v-model:visible="sanctionOn" header="用户处罚" modal :style="{ width: '420px' }">
+      <div class="sanctionBody" v-if="sanctionTarget">
+        <div class="grantTarget">
+          <b>{{ sanctionTarget.display_name || sanctionTarget.email }}</b>
+          <span class="grantUid">UID {{ sanctionTarget.id }}</span>
+        </div>
+        <div class="sanctionNow" v-if="sanctionTarget.ban || sanctionTarget.mute">
+          <div v-if="sanctionTarget.ban">
+            <Tag severity="danger" :value="'封号 ' + untilText(sanctionTarget.ban)" />
+            <Button label="解封" size="small" text severity="success" :loading="sanctioning"
+              @click="revokeSanction('ban')" />
+          </div>
+          <div v-if="sanctionTarget.mute">
+            <Tag severity="warn" :value="'禁言 ' + untilText(sanctionTarget.mute)" />
+            <Button label="解除禁言" size="small" text severity="success" :loading="sanctioning"
+              @click="revokeSanction('mute')" />
+          </div>
+        </div>
+        <label>类型
+          <Select v-model="sanctionForm.type" :options="sanctionTypes" optionLabel="label" optionValue="value" />
+        </label>
+        <label>时长
+          <Select v-model="sanctionForm.hours" :options="durationOptions" optionLabel="label" optionValue="value" />
+        </label>
+        <InputNumber v-if="sanctionForm.hours === -1" v-model="sanctionForm.customHours" :min="1" :max="87600"
+          suffix=" 小时" :useGrouping="false" placeholder="自定义小时数" />
+        <InputText v-model="sanctionForm.reason" maxlength="200" placeholder="理由（会通知用户，可选）" />
+        <small class="sanctionHint">
+          禁言：不能发帖、回复、发布博客；封号：无法使用 MoeLink 的所有需登录功能。同类型处罚会被新设置覆盖。
+        </small>
+      </div>
+      <template #footer>
+        <Button label="取消" severity="secondary" text @click="sanctionOn = false" />
+        <Button :label="sanctionForm.type === 'ban' ? '确认封号' : '确认禁言'" icon="pi pi-ban"
+          :severity="sanctionForm.type === 'ban' ? 'danger' : 'warn'" :loading="sanctioning"
+          :disabled="sanctionForm.hours === -1 && !sanctionForm.customHours" @click="applySanction" />
+      </template>
+    </Dialog>
 
     <!-- MoeCoin 奖励弹窗 -->
     <Dialog v-model:visible="grantOn" header="发放 MoeCoin 奖励 🪙" modal :style="{ width: '380px' }">
@@ -108,13 +198,18 @@
 
 <script>
 import axios from 'axios'
+import Avatar from 'primevue/avatar'
 import Button from 'primevue/button'
+import Chip from 'primevue/chip'
+import Divider from 'primevue/divider'
 import Column from 'primevue/column'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
+import Tag from 'primevue/tag'
+import Tooltip from 'primevue/tooltip'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { formatCoin } from '@/pages/wallet/shared'
@@ -134,7 +229,12 @@ export default {
     Button,
     Dialog,
     Select,
+    Tag,
+    Avatar,
+    Divider,
+    Chip,
   },
+  directives: { tooltip: Tooltip },
   setup() {
     return {
       toast: useToast(),
@@ -152,8 +252,27 @@ export default {
       wallets: {},
       roleOptions: [
         { label: '普通用户', value: 0 },
-        { label: '版主', value: 2 },
         { label: '管理员', value: 1 },
+      ],
+      roleOn: false,
+      roleTarget: null,
+      roleDraft: 0,
+      sanctionOn: false,
+      sanctionTarget: null,
+      sanctioning: false,
+      sanctionForm: { type: 'mute', hours: 24, customHours: null, reason: '' },
+      sanctionTypes: [
+        { label: '禁言', value: 'mute' },
+        { label: '封号', value: 'ban' },
+      ],
+      durationOptions: [
+        { label: '1 小时', value: 1 },
+        { label: '1 天', value: 24 },
+        { label: '3 天', value: 72 },
+        { label: '7 天', value: 168 },
+        { label: '30 天', value: 720 },
+        { label: '永久', value: 0 },
+        { label: '自定义…', value: -1 },
       ],
       grantOn: false,
       grantTarget: null,
@@ -252,47 +371,92 @@ export default {
         life: 1500,
       })
     },
-    onRoleChange(row, newRole) {
-      const prevRole = row.user_role
-      if (prevRole === newRole) return
-      const target = this.roleOptions.find((r) => r.value === newRole)
-      const prev = this.roleOptions.find((r) => r.value === prevRole)
-      this.confirmService.require({
-        message: `将「${row.email}」的角色从「${prev ? prev.label : prevRole}」变更为「${target ? target.label : newRole}」？`,
-        header: '修改用户角色',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: '确认修改',
-        rejectLabel: '取消',
-        accept: async () => {
-          try {
-            await axios.put(
-              GetApi(`/admin/unified-users/${row.id}/role`),
-              { role: newRole },
-              { headers: this.headers() },
-            )
-            row.user_role = newRole
-            this.toast.add({
-              severity: 'success',
-              summary: '角色已更新',
-              detail: row.email,
-              life: 2000,
-            })
-            this.load()
-          } catch (err) {
-            row.user_role = prevRole
-            const msg = err.response?.data?.error || '修改失败'
-            this.toast.add({
-              severity: 'error',
-              summary: '修改失败',
-              detail: msg,
-              life: 3000,
-            })
-          }
-        },
-        reject: () => {
-          row.user_role = prevRole
-        },
+    untilText(s) {
+      if (!s.expires_at) return '永久'
+      const d = new Date(s.expires_at)
+      const p = (n) => String(n).padStart(2, '0')
+      return `至 ${d.getMonth() + 1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`
+    },
+    openSanction(row) {
+      this.sanctionTarget = row
+      this.sanctionForm = { type: 'mute', hours: 24, customHours: null, reason: '' }
+      this.sanctionOn = true
+    },
+    sanctionError(err, summary) {
+      this.toast.add({
+        severity: 'error',
+        summary,
+        detail: err.response?.data?.error || '请稍后重试',
+        life: 3000,
       })
+    },
+    async applySanction() {
+      const f = this.sanctionForm
+      const hours = f.hours === -1 ? f.customHours : f.hours
+      this.sanctioning = true
+      try {
+        await axios.post(
+          GetApi(`/admin/unified-users/${this.sanctionTarget.id}/sanction`),
+          { type: f.type, hours, reason: f.reason || undefined },
+          { headers: this.headers() },
+        )
+        this.toast.add({
+          severity: 'success',
+          summary: f.type === 'ban' ? '已封号' : '已禁言',
+          life: 2000,
+        })
+        this.sanctionOn = false
+        this.reload()
+      } catch (err) {
+        this.sanctionError(err, '操作失败')
+      }
+      this.sanctioning = false
+    },
+    async revokeSanction(type) {
+      this.sanctioning = true
+      try {
+        await axios.delete(
+          GetApi(`/admin/unified-users/${this.sanctionTarget.id}/sanction/${type}`),
+          { headers: this.headers() },
+        )
+        this.toast.add({
+          severity: 'success',
+          summary: type === 'ban' ? '已解封' : '已解除禁言',
+          life: 2000,
+        })
+        this.sanctionOn = false
+        this.reload()
+      } catch (err) {
+        this.sanctionError(err, '操作失败')
+      }
+      this.sanctioning = false
+    },
+    openRole(row) {
+      if (row.id === this.myUid) return
+      this.roleTarget = row
+      this.roleDraft = row.user_role
+      this.roleOn = true
+    },
+    async saveRole() {
+      const row = this.roleTarget
+      if (!row || this.roleDraft === row.user_role) return
+      try {
+        await axios.put(
+          GetApi(`/admin/unified-users/${row.id}/role`),
+          { role: this.roleDraft },
+          { headers: this.headers() },
+        )
+        this.toast.add({ severity: 'success', summary: '权限已更新', detail: row.email, life: 2000 })
+        this.roleOn = false
+        this.load()
+      } catch (err) {
+        this.toast.add({
+          severity: 'error',
+          summary: '修改失败',
+          detail: err.response?.data?.error || '修改失败',
+          life: 3000,
+        })
+      }
     },
     openGrant(row) {
       this.grantTarget = row
@@ -338,14 +502,138 @@ export default {
       if (!d) return '—'
       return new Date(d).toLocaleDateString('zh-CN')
     },
-    shortUuid(u) {
-      return u ? `${u.slice(0, 8)}…` : ''
+    formatMinute(v) {
+      if (!v) return ''
+      const d = new Date(v)
+      const p = (n) => String(n).padStart(2, '0')
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+    },
+    nickOf(row) {
+      return row.display_name || row.nickname || ''
     },
   },
 }
 </script>
 
 <style lang="scss" scoped>
+.acctWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.acctCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.acctEmail {
+  white-space: nowrap;
+}
+
+.acctUid {
+  font-family: monospace;
+  font-size: 10.5px;
+  letter-spacing: -0.2px;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8892b8;
+}
+
+.nickCell {
+  display: block;
+  max-width: 165px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusCell {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.modTag {
+  margin-left: 4px;
+}
+
+.modSection {
+  margin-top: 0;
+}
+
+.idChip {
+  border-radius: 6px;
+}
+
+.roleHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #4a6fe3;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+.modIntro {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: #56608a;
+}
+
+.modTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.okText {
+  font-size: 12px;
+  color: #9aa2c5;
+}
+
+.sanctionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #56608a;
+  }
+}
+
+.sanctionNow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff7f5;
+}
+
+.sanctionHint {
+  font-size: 12px;
+  color: #8892b8;
+  line-height: 1.5;
+}
+
 // 全宽：不再限制 max-width
 .userTablePage {
   width: 100%;
@@ -421,10 +709,47 @@ export default {
   }
 }
 
-.uuid {
-  font-family: monospace;
+.timeCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeLogin {
   font-size: 12px;
   color: #8892b8;
+}
+
+.roleTag {
+  cursor: pointer;
+}
+
+.roleTagDisabled {
+  cursor: not-allowed;
+  opacity: .7;
+}
+
+.roleChoices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.roleChoice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #d9def0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+
+  &.active {
+    border-color: #4a6fe3;
+    background: #f1f4ff;
+  }
 }
 
 .roleSelect {

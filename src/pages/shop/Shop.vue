@@ -2,15 +2,12 @@
   <div class="shopPage">
     <header class="pageHead">
       <div>
-        <h1>EC 商城</h1>
-        <p>浏览商城商品与拼团商品，用 MoeCoin 购买心仪好物</p>
+        <h1>萌购 <small class="enName">MoeBuy</small></h1>
+        <p>浏览萌购商品与拼团商品，用 MoeCoin 购买心仪好物</p>
       </div>
       <div class="headActions">
         <router-link v-if="logined" class="myOrdersLink publishLink" to="/shop/groups/new">
           <i class="pi pi-plus"></i>发布拼团商品
-        </router-link>
-        <router-link v-if="logined" class="myOrdersLink" to="/shop/orders">
-          <i class="pi pi-list"></i>我的订单
         </router-link>
       </div>
     </header>
@@ -35,9 +32,7 @@
         <div class="productCover">
           <img v-if="p.image_url" :src="p.image_url" :alt="p.title">
           <span v-else class="productEmoji">{{ p.emoji || '🛍️' }}</span>
-          <span v-if="p.item_type === 'group_buy'" class="typeBadge">
-            {{ p.status === 'pending_review' ? '等待审核' : '拼团商品' }}
-          </span>
+          <span v-if="p.item_type === 'group_buy'" class="typeBadge">拼团商品</span>
         </div>
         <h2 class="productTitle">{{ p.title }}</h2>
         <div v-if="p.item_type === 'group_buy'" class="groupPrice">
@@ -54,7 +49,10 @@
         <div v-if="p.item_type === 'group_buy'" class="groupProgress">
           <span>{{ p.member_count }}/{{ p.target_count }} 人</span>
           <ProgressBar :value="progress(p)" :showValue="false" />
-          <span>{{ groupStatusLabel(p) }}</span>
+          <span v-if="p.status === 'open'" v-tooltip.top="`截止时间：${formatExactDate(p.expires_at)}`" class="groupDeadline">
+            <i class="pi pi-clock"></i>{{ relativeDeadline(p.expires_at) }}
+          </span>
+          <span v-else>{{ groupStatusLabel(p) }}</span>
         </div>
         <div v-else class="productSold">已售 {{ p.sold }}</div>
       </router-link>
@@ -79,6 +77,7 @@
 import axios from 'axios'
 import Button from 'primevue/button'
 import ProgressBar from 'primevue/progressbar'
+import Tooltip from 'primevue/tooltip'
 import { formatCoin } from '@/pages/wallet/shared'
 import { GetApi, GetToken } from '@/utils'
 
@@ -87,6 +86,7 @@ const PAGE_SIZE = 24
 export default {
   name: 'ShopPage',
   components: { Button, ProgressBar },
+  directives: { tooltip: Tooltip },
   data() {
     return {
       products: [],
@@ -113,6 +113,7 @@ export default {
       this.loading = true
       try {
         const res = await axios.get(GetApi('/shop/products'), {
+          headers: GetToken() ? { Authorization: `Bearer ${GetToken()}` } : {},
           params: {
             limit: this.pageSize,
             offset: (this.page - 1) * this.pageSize,
@@ -165,7 +166,19 @@ export default {
     groupStatusLabel(product) {
       if (product.status === 'pending_review') return '等待审核'
       if (product.status === 'successful') return '已成团'
-      return `截止 ${this.formatDate(product.expires_at)}`
+      return '拼团已结束'
+    },
+    relativeDeadline(value) {
+      const remaining = new Date(value).getTime() - Date.now()
+      if (remaining <= 0) return '即将截止'
+      const minutes = Math.ceil(remaining / 60000)
+      if (minutes < 60) return `${minutes}分钟后`
+      const hours = Math.ceil(minutes / 60)
+      if (hours < 24) return `${hours}小时后`
+      return `${Math.ceil(hours / 24)}天后`
+    },
+    formatExactDate(value) {
+      return new Date(value).toLocaleString('zh-CN', { hour12: false })
     },
     progress(product) {
       return Math.min(
@@ -208,6 +221,12 @@ export default {
     margin: 0;
     font-size: 32px;
     color: #2c3e77;
+
+    .enName {
+      font-size: 16px;
+      font-weight: 500;
+      color: #7a86b6;
+    }
   }
 
   p {
@@ -449,6 +468,14 @@ export default {
 
   :deep(.p-progressbar) {
     height: 6px;
+  }
+}
+
+.groupDeadline {
+  white-space: nowrap;
+
+  i {
+    margin-right: 4px;
   }
 }
 

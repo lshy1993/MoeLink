@@ -1,18 +1,16 @@
 <template>
   <div class="myOrdersPage">
-    <router-link class="backLink" to="/shop">← 返回商城</router-link>
-
     <div v-if="!logined" class="loginPrompt">
       <i class="pi pi-lock"></i>
       <h1>请先登录</h1>
       <p>登录后即可查看订单</p>
-      <router-link to="/shop">返回商城</router-link>
+      <router-link to="/shop">返回萌购</router-link>
     </div>
 
     <template v-else>
       <header class="pageHead">
         <h1 class="pageTitle">我的订单</h1>
-        <router-link class="groupOrdersLink" to="/shop/my-groups">我的拼团记录</router-link>
+        <router-link class="groupOrdersLink" to="/orders/groups">我的拼团记录</router-link>
       </header>
 
       <div v-if="orders.length" class="orderList">
@@ -39,8 +37,8 @@
       </div>
       <div v-else-if="!loading" class="emptyBox">
         <i class="pi pi-shopping-bag emptyIcon"></i>
-        <p>还没有订单，去商城逛逛吧</p>
-        <router-link to="/shop" class="goShop">进入商城 →</router-link>
+        <p>还没有订单，去萌购逛逛吧</p>
+        <router-link to="/shop" class="goShop">进入萌购 →</router-link>
       </div>
 
       <div class="pager" v-if="orders.length && orders.length < total">

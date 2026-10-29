@@ -242,7 +242,7 @@ export default {
         .catch(() => {
           this.toast.add({ severity: 'error', summary: '加载失败', detail: '正文加载失败', life: 3000 });
         });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      (document.getElementById('appBody') || window).scrollTo({ top: 0, behavior: 'smooth' });
     },
     openCreateDialog() {
       this.resetForm();

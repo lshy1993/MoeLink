@@ -1,17 +1,60 @@
 // 讨论区共享常量与展示工具
+import axios from 'axios'
+import { ref } from 'vue'
+import { GetApi } from '@/utils'
 
-export const THREAD_CATEGORIES = [
-  { value: 'general', label: '综合', severity: 'secondary' },
-  { value: 'qa', label: '问答', severity: 'info' },
-  { value: 'share', label: '分享', severity: 'success' },
-  { value: 'news', label: '公告', severity: 'warn' },
-] as const
+export interface ThreadCategoryItem {
+  value: string
+  label: string
+  severity: string
+  description: string
+  active: boolean
+}
 
-export type ThreadCategory = (typeof THREAD_CATEGORIES)[number]['value']
+// 分区由后台维护；接口返回前先用内置默认值占位，避免首屏空白
+const DEFAULT_CATEGORIES: ThreadCategoryItem[] = [
+  { value: 'general', label: '综合', severity: 'secondary', description: '', active: true },
+  { value: 'qa', label: '求物', severity: 'info', description: '', active: true },
+  { value: 'share', label: '分享', severity: 'success', description: '', active: true },
+  { value: 'news', label: '公告', severity: 'warn', description: '', active: true },
+]
+
+export const threadCategories = ref<ThreadCategoryItem[]>(DEFAULT_CATEGORIES)
+
+let loading: Promise<void> | null = null
+
+export function loadThreadCategories(force = false) {
+  if (loading && !force) return loading
+  loading = axios
+    .get(GetApi('/thread/categories'))
+    .then((res) => {
+      const list = res.data?.categories
+      if (!Array.isArray(list) || !list.length) return
+      threadCategories.value = list.map(
+        (c: Record<string, unknown>): ThreadCategoryItem => ({
+          value: String(c.slug),
+          label: String(c.name),
+          severity: String(c.severity || 'secondary'),
+          description: String(c.description || ''),
+          active: c.is_active !== false,
+        }),
+      )
+    })
+    .catch(() => {
+      loading = null
+    })
+  return loading
+}
 
 export function categoryMeta(value: string) {
   return (
-    THREAD_CATEGORIES.find((c) => c.value === value) || THREAD_CATEGORIES[0]
+    threadCategories.value.find((c) => c.value === value) || {
+      value,
+      label: value,
+      severity: 'secondary',
+      description: '',
+      active: false,
+    }
   )
 }
 

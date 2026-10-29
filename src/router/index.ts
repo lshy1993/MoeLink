@@ -70,9 +70,13 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../pages/shop/Shop.vue'),
   },
   {
-    path: '/shop/orders',
+    path: '/orders',
     name: 'shop-orders',
     component: () => import('../pages/shop/MyOrders.vue'),
+  },
+  {
+    path: '/shop/orders',
+    redirect: '/orders',
   },
   {
     path: '/shop/groups',
@@ -90,6 +94,10 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/shop/my-groups',
+    redirect: '/orders/groups',
+  },
+  {
+    path: '/orders/groups',
     name: 'shop-my-groups',
     component: () => import('../pages/shop/MyGroupBuys.vue'),
   },

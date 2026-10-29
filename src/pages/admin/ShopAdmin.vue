@@ -182,7 +182,7 @@
     <!-- 设置 -->
     <template v-else>
       <div class="listCard settingsCard">
-        <h2>商城设置</h2>
+        <h2>萌购设置</h2>
         <div class="settingRow">
           <label>销售收入入账账户 UID</label>
           <InputNumber v-model="settingsForm.revenue_uid" :min="1" :useGrouping="false" />

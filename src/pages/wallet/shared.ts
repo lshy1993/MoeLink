@@ -19,6 +19,10 @@ export const MOCOIN_TX_TYPES: Record<string, TxMeta> = {
   sale: { label: '商品销售收入', severity: 'success' },
   refund: { label: '订单退款', severity: 'info' },
   refund_out: { label: '退款支出', severity: 'danger' },
+  group_buy_hold: { label: '拼团预付款', severity: 'warn' },
+  group_buy_sale: { label: '拼团购买收入', severity: 'success' },
+  group_buy_payout: { label: '拼团分发结算', severity: 'success' },
+  group_buy_refund: { label: '拼团退款', severity: 'info' },
   admin_grant: { label: '管理员发放', severity: 'info' },
   admin_deduct: { label: '管理员扣减', severity: 'danger' },
 }

@@ -13,7 +13,9 @@
     <div v-if="loginOn & !userLogined" class="loginDiv" @mousedown="showLoginBox">
       <login-box @login="logIn" @signup="signUp" />
     </div>
-    <router-view ref="mainPage" :user="user"></router-view>
+    <div id="appBody" class="appBody">
+      <router-view ref="mainPage" :user="user"></router-view>
+    </div>
     <announcement-popup
       :announcement="announcement"
       :visible="announcementOpen"
@@ -214,7 +216,7 @@ export default {
         })
         const { token, userInfo } = response.data
         if (!token) throw new Error('注册响应缺少 token')
-        // 注册成功即自动登录，同一账号在 MoeLink 与测试站通用
+        // 注册成功即自动登录，同一账号在 MoeLink 与原神问答通用
         SaveToken(token)
         this.user.userinfo = userInfo || {}
         User.Init(userInfo || {})
@@ -252,6 +254,21 @@ export default {
 </script>
 
 <style lang="scss">
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+// 顶栏固定，滚动条只出现在下方内容区
+.appBody {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .loginDiv {
   position: fixed;
   top: 0;

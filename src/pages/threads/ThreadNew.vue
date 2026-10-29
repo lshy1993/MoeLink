@@ -62,7 +62,7 @@ import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
 import { useToast } from 'primevue/usetoast'
 import { GetApi, GetToken } from '@/utils'
-import { THREAD_CATEGORIES } from './shared'
+import { loadThreadCategories, threadCategories } from './shared'
 
 export default {
   name: 'ThreadNew',
@@ -74,10 +74,6 @@ export default {
     return {
       logined: !!GetToken(),
       submitting: false,
-      categories: THREAD_CATEGORIES.map((c) => ({
-        label: c.label,
-        value: c.value,
-      })),
       form: {
         category: 'general',
         title: '',
@@ -87,6 +83,11 @@ export default {
     }
   },
   computed: {
+    categories() {
+      return threadCategories.value
+        .filter((c) => c.active)
+        .map((c) => ({ label: c.label, value: c.value }))
+    },
     canSubmit() {
       return (
         this.form.title.trim().length > 0 && this.form.content.trim().length > 0
@@ -96,6 +97,9 @@ export default {
       if (!this.form.content.trim()) return '<p class="ph">输入正文即时预览</p>'
       return DOMPurify.sanitize(marked.parse(this.form.content))
     },
+  },
+  mounted() {
+    loadThreadCategories()
   },
   methods: {
     async submit() {

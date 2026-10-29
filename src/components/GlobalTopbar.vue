@@ -10,7 +10,7 @@
         <router-link v-for="item in mainNav" :key="item.to" class="navLink" :to="item.to">
           {{ item.label }}
         </router-link>
-        <a class="navLink" :href="quizUrl" target="_blank" rel="noopener">测试站 ↗</a>
+        <a class="navLink" :href="quizUrl" target="_blank" rel="noopener">原神问答 ↗</a>
       </nav>
 
       <div class="topbarRight">
@@ -111,7 +111,7 @@
         <router-link v-for="item in mainNav" :key="item.to" class="mLink" :to="item.to">
           {{ item.label }}
         </router-link>
-        <a class="mLink" :href="quizUrl" target="_blank" rel="noopener">测试站 ↗</a>
+        <a class="mLink" :href="quizUrl" target="_blank" rel="noopener">原神问答 ↗</a>
         <router-link v-if="logined" class="mLink" to="/wallet">💰 我的钱包（{{ formatCoin(wallet.balance) }}）</router-link>
         <router-link v-if="adminVisible" class="mLink admin" to="/admin">管理后台</router-link>
         <button v-if="!logined" class="mLogin" :disabled="!serverOn" @click.stop="$emit('show-login')">
@@ -140,6 +140,7 @@ const NOTIF_META = {
   moecoin_grant: { icon: 'pi pi-wallet', cls: 'green' },
   shop_order: { icon: 'pi pi-shopping-cart', cls: 'cyan' },
   role: { icon: 'pi pi-user', cls: 'purple' },
+  sanction: { icon: 'pi pi-ban', cls: 'orange' },
 }
 
 export default {
@@ -176,7 +177,7 @@ export default {
       mainNav: [
         { to: '/threads', label: '讨论区' },
         { to: '/blog', label: '博客' },
-        { to: '/shop', label: 'EC 商城' },
+        { to: '/shop', label: '萌购' },
         { to: '/alphasoul', label: 'AlphaSoul' },
       ],
     }
@@ -221,6 +222,11 @@ export default {
         label: '我的钱包',
         icon: 'pi pi-wallet',
         command: () => this.$router.push('/wallet'),
+      })
+      items.push({
+        label: '我的订单',
+        icon: 'pi pi-list',
+        command: () => this.$router.push('/orders'),
       })
       if (this.adminVisible) {
         items.push({ separator: true })

@@ -1,6 +1,6 @@
 <template>
   <div class="myGroupsPage">
-    <router-link class="backLink" to="/shop">← 返回商城</router-link>
+    <router-link class="backLink" to="/orders">← 我的订单</router-link>
     <h1>我的拼团</h1>
     <div v-if="groups.length" class="groupList">
       <article v-for="group in groups" :key="`${group.id}-${group.purchase_type}`" class="groupCard">

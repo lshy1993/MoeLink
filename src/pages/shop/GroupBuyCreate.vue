@@ -1,6 +1,6 @@
 <template>
   <div class="createPage">
-    <router-link class="backLink" to="/shop">← 返回商城</router-link>
+    <router-link class="backLink" to="/shop">← 返回萌购</router-link>
     <form class="createCard" @submit.prevent="create">
       <h1>发起拼团</h1>
       <p class="intro">提交后由管理员审核。预付款将暂存；审核通过后开放参团。</p>

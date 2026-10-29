@@ -3,7 +3,6 @@
     <section class="hero">
       <div class="heroInner">
         <h1 class="logo">MoeLink</h1>
-        <p class="tagline">社区 · 博客 · 测试站 —— 由 Luckylee 运营的小站</p>
         <div class="heroStat" v-if="stats">
           <span>已注册用户 <b>{{ stats.total }}</b></span>
           <span>本周新增 <b>+{{ stats.new_week }}</b></span>
@@ -37,16 +36,16 @@
         </template>
       </router-link>
 
-      <!-- EC 商城 -->
+      <!-- 萌购 -->
       <router-link class="card" to="/shop">
-        <div class="cardHead"><span class="icon">🛒</span><h2>EC 商城</h2></div>
+        <div class="cardHead"><span class="icon">🛒</span><h2>萌购</h2></div>
         <p>用 MoeCoin 兑换周边与商品。</p>
         <div class="cardTag">进入</div>
       </router-link>
 
       <!-- genshin quiz -->
       <a class="card" :href="quizUrl" target="_blank" rel="noopener">
-        <div class="cardHead"><span class="icon">🎯</span><h2>测试站</h2></div>
+        <div class="cardHead"><span class="icon">🎯</span><h2>原神问答</h2></div>
         <p>原神答题平台：题库、题集、答题记录与排行。</p>
         <div class="cardTag">立即体验 ↗</div>
       </a>
