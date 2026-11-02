@@ -15,6 +15,7 @@ export default defineConfig({
   server: {
     port: 5173, // 这里设置端口号
     host: true,
+    allowedHosts: ['moelink.site', 'www.moelink.site'],
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:8020',
