@@ -5,6 +5,9 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY . .
+# Vite 在构建时把 key 内联进前端包（PrimeUI 授权密钥属于前端公开配置）
+ARG VITE_PRIMEUI_LICENSE_KEY=
+ENV VITE_PRIMEUI_LICENSE_KEY=$VITE_PRIMEUI_LICENSE_KEY
 RUN bun run build-only
 
 FROM nginx:alpine

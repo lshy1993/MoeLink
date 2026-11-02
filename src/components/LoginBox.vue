@@ -16,6 +16,15 @@
             <button type="button" class="btn-primary clickable" @click="handleLogin()">
                 <span>{{ email ? registerMode ? "注册" : "登录" : "注册 or 登录" }}</span>
             </button>
+            <div class="oauthOptions">
+                <span class="oauthDivider">或使用第三方账号</span>
+                <button type="button" class="oauthButton" @click="startOAuth('google')">
+                    使用 Google 登录
+                </button>
+                <button type="button" class="oauthButton" @click="startOAuth('github')">
+                    使用 GitHub 登录
+                </button>
+            </div>
             <div class="tipLine">统一账号同时适用于 MoeLink 与原神问答</div>
             <div class="tipLine">首次使用？输入邮箱与密码后将自动进入注册</div>
         </form>
@@ -51,6 +60,14 @@ export default {
         }
     },
     methods: {
+        startOAuth(provider) {
+            const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+            const base = isLocal ? 'http://localhost:8000/go-api' : 'https://api.moelink.site/go-api';
+            const returnTo = window.location.origin + window.location.pathname;
+            window.location.assign(
+                `${base}/auth/oauth/${provider}?return_to=${encodeURIComponent(returnTo)}`
+            );
+        },
         checkUserOK() {
             // 查询邮箱是否已被注册：已注册 => 登录模式，未注册 => 注册模式
             if (!this.email) return;
@@ -126,6 +143,31 @@ export default {
         label {
             display: inline-block;
             margin-bottom: 5px;
+        }
+
+        .oauthOptions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .oauthDivider {
+            color: #777;
+            font-size: 13px;
+        }
+
+        .oauthButton {
+            min-height: 38px;
+            border: 1px solid #d5d9e2;
+            border-radius: 6px;
+            background: #fff;
+            color: #222;
+            cursor: pointer;
+        }
+
+        .oauthButton:hover {
+            background: #f5f6f8;
         }
 
         input {

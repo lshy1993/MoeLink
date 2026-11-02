@@ -64,6 +64,7 @@ export default {
     this.checkServer()
   },
   mounted() {
+    this.consumeOAuthCallback()
     this.initLoginStatus()
     this.loadAnnouncement()
     this.announcementTimer = setInterval(this.loadAnnouncement, 5 * 60 * 1000)
@@ -78,6 +79,30 @@ export default {
     },
   },
   methods: {
+    consumeOAuthCallback() {
+      const params = new URLSearchParams(window.location.hash.slice(1))
+      const token = params.get('oauth_token')
+      const oauthError = params.get('oauth_error')
+      if (!token && !oauthError) return
+
+      window.history.replaceState(
+        null,
+        document.title,
+        window.location.pathname + window.location.search,
+      )
+      if (token) {
+        SaveToken(token)
+        return
+      }
+
+      const messages = {
+        authorization_denied: '已取消第三方登录',
+        invalid_state: '登录验证已过期，请重试',
+        provider_failed: '第三方账号验证失败，请重试',
+        account_failed: '账号登录失败，请联系管理员',
+      }
+      window.alert(messages[oauthError] || '第三方登录失败，请重试')
+    },
     // ── 全局公告 ──
     async loadAnnouncement() {
       try {
