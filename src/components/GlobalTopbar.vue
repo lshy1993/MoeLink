@@ -129,7 +129,7 @@ import Avatar from 'primevue/avatar'
 import Menu from 'primevue/menu'
 import { useToast } from 'primevue/usetoast'
 import { formatCoin, formatTime } from '@/pages/wallet/shared'
-import { GetApi, GetToken, md5 } from '@/utils'
+import { GetApi, GetQuizUrl, GetToken, md5 } from '@/utils'
 
 // 通知类型 → 图标/配色
 const NOTIF_META = {
@@ -171,13 +171,12 @@ export default {
         checked_today: false,
         last_streak: 0,
       },
-      quizUrl: import.meta.env.DEV
-        ? 'http://localhost:3000'
-        : import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site',
+      quizUrl: GetQuizUrl(),
       mainNav: [
         { to: '/threads', label: '讨论区' },
         { to: '/blog', label: '博客' },
         { to: '/shop', label: '萌购' },
+        { to: '/stocks', label: '模拟股市' },
         { to: '/alphasoul', label: 'AlphaSoul' },
       ],
     }
@@ -246,6 +245,7 @@ export default {
     },
   },
   mounted() {
+    window.addEventListener('moecoin:refresh', this.fetchWallet)
     if (this.logined) {
       this.fetchWallet()
       this.fetchUnread()
@@ -260,6 +260,7 @@ export default {
   },
   beforeUnmount() {
     if (this.pollTimer) clearInterval(this.pollTimer)
+    window.removeEventListener('moecoin:refresh', this.fetchWallet)
     document.removeEventListener('mousedown', this.onDocMouseDown)
     window.removeEventListener('resize', this.onResize)
   },

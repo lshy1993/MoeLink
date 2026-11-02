@@ -65,10 +65,32 @@ function GetApi(path: string): string {
 
 function GetWebSocketUrl(): string {
   const url = "ws://api.moelink.site";
-  if (import.meta.env.MODE === 'development') {
+  if (IsLocalAccess()) {
     return "ws://localhost:8181";
   }
   return url;
+}
+
+/**
+ * 判断浏览器是否从本机访问（localhost / 127.0.0.1）
+ * 注意：不能用 import.meta.env.DEV 判断——线上若直接用 vite dev 对外提供服务，
+ * DEV 对所有访问者都是 true。这里以浏览器实际访问的域名为准。
+ */
+function IsLocalAccess(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+}
+
+/**
+ * 获取 genshin quiz（原神问答）站点地址
+ * 本机访问 → 本地 quiz 开发服务器；线上域名 → 正式站（可用 VITE_QUIZ_URL 覆盖）
+ */
+function GetQuizUrl(): string {
+  if (IsLocalAccess()) {
+    return 'http://localhost:3000';
+  }
+  return import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site';
 }
 
 // ── 统一用户系统 JWT（Bearer）── 存储在 localStorage，请求时自动附带
@@ -316,6 +338,7 @@ export {
   ranBG,
   GetApi,
   GetWebSocketUrl,
+  GetQuizUrl,
   GetPostObject,
   GetGetObject,
   GetToken,

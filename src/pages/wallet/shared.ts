@@ -8,6 +8,10 @@ export interface TxMeta {
 export const MOCOIN_TX_TYPES: Record<string, TxMeta> = {
   initial: { label: '新手礼包', severity: 'success' },
   checkin: { label: '签到奖励', severity: 'success' },
+  stock_buy: { label: '买入股票', severity: 'warn' },
+  stock_sell: { label: '卖出股票', severity: 'success' },
+  stock_deposit: { label: '转入证券账户', severity: 'warn' },
+  stock_withdraw: { label: '证券账户转回', severity: 'success' },
   tip_sent: { label: '打赏支出', severity: 'warn' },
   tip_received: { label: '获得打赏', severity: 'success' },
   transfer_sent: { label: '转账支出', severity: 'warn' },

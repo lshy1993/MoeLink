@@ -43,6 +43,13 @@
         <div class="cardTag">进入</div>
       </router-link>
 
+      <!-- 模拟股市 -->
+      <router-link class="card" to="/stocks">
+        <div class="cardHead"><span class="icon">📈</span><h2>模拟股市</h2></div>
+        <p>用 MoeCoin 交易虚拟股票，体验涨跌人生。</p>
+        <div class="cardTag">进入</div>
+      </router-link>
+
       <!-- genshin quiz -->
       <a class="card" :href="quizUrl" target="_blank" rel="noopener">
         <div class="cardHead"><span class="icon">🎯</span><h2>原神问答</h2></div>
@@ -71,7 +78,7 @@
 
 <script>
 import axios from 'axios'
-import { GetApi } from '@/utils'
+import { GetApi, GetQuizUrl } from '@/utils'
 
 export default {
   name: 'HomePage',
@@ -79,9 +86,7 @@ export default {
     return {
       posts: [],
       stats: null,
-      quizUrl: import.meta.env.DEV
-        ? 'http://localhost:3000'
-        : import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site',
+      quizUrl: GetQuizUrl(),
     }
   },
   mounted() {
