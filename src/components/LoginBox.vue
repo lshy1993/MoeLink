@@ -3,14 +3,28 @@
         <form class="loginForm" autocomplete="on">
             <div class="inputLine">
                 <label for="login-email">Email</label>
-                <input id="login-email" type="email" v-model="email" :placeholder="loginHint.email" autocomplete="on"
-                    @blur="checkUserOK()">
+                <InputText
+                    id="login-email"
+                    v-model="email"
+                    type="email"
+                    fluid
+                    :placeholder="loginHint.email"
+                    autocomplete="email"
+                    @blur="checkUserOK()"
+                />
                 <span class="errMsg">{{ loginErrMsg.email }}</span>
             </div>
             <div class="inputLine">
                 <label for="login-pwd">PassWord</label>
-                <input id="login-pwd" type="password" v-model="password" :placeholder="loginHint.pwd" autocomplete="on"
-                    @keyup.enter="handleLogin()">
+                <InputText
+                    id="login-pwd"
+                    v-model="password"
+                    type="password"
+                    fluid
+                    :placeholder="loginHint.pwd"
+                    :autocomplete="registerMode ? 'new-password' : 'current-password'"
+                    @keyup.enter="handleLogin()"
+                />
                 <span class="errMsg">{{ loginErrMsg.pwd }}</span>
             </div>
             <button type="button" class="btn-primary clickable" @click="handleLogin()">
@@ -18,26 +32,39 @@
             </button>
             <div class="oauthOptions">
                 <span class="oauthDivider">或使用第三方账号</span>
-                <button type="button" class="oauthButton" @click="startOAuth('google')">
-                    使用 Google 登录
-                </button>
-                <button type="button" class="oauthButton" @click="startOAuth('github')">
-                    使用 GitHub 登录
-                </button>
+                <Button
+                    type="button"
+                    class="oauthButton"
+                    icon="pi pi-google"
+                    label="使用 Google 登录"
+                    severity="secondary"
+                    outlined
+                    @click="startOAuth('google')"
+                />
+                <Button
+                    type="button"
+                    class="oauthButton"
+                    icon="pi pi-github"
+                    label="使用 GitHub 登录"
+                    severity="secondary"
+                    outlined
+                    @click="startOAuth('github')"
+                />
             </div>
-            <div class="tipLine">统一账号同时适用于 MoeLink 与原神问答</div>
-            <div class="tipLine">首次使用？输入邮箱与密码后将自动进入注册</div>
         </form>
     </div>
 </template>
 
 <script>
 /* eslint-disable */
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
 import { GetApi } from '@/utils';
 import axios from 'axios';
 
 export default {
     name: 'LoginBox',
+    components: { Button, InputText },
     data() {
         return {
             registerMode: false,
@@ -62,7 +89,8 @@ export default {
     methods: {
         startOAuth(provider) {
             const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
-            const base = isLocal ? 'http://localhost:8000/go-api' : 'https://api.moelink.site/go-api';
+            // /auth/* 由独立 auth-service 提供，gateway 直接按前缀转发
+            const base = isLocal ? 'http://localhost:8000' : 'https://api.moelink.site';
             const returnTo = window.location.origin + window.location.pathname;
             window.location.assign(
                 `${base}/auth/oauth/${provider}?return_to=${encodeURIComponent(returnTo)}`
@@ -145,52 +173,62 @@ export default {
             margin-bottom: 5px;
         }
 
-        .oauthOptions {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 16px;
-        }
-
-        .oauthDivider {
-            color: #777;
-            font-size: 13px;
-        }
-
-        .oauthButton {
-            min-height: 38px;
-            border: 1px solid #d5d9e2;
-            border-radius: 6px;
-            background: #fff;
-            color: #222;
-            cursor: pointer;
-        }
-
-        .oauthButton:hover {
-            background: #f5f6f8;
-        }
-
         input {
+            box-sizing: border-box;
             display: block;
             width: 100%;
-            height: 30px;
-            //text-align: left;
+            height: 40px;
         }
     }
 
-    .btn-primary {
-        color: #fff;
-        background-color: #2d8cf0;
-        border-color: #2d8cf0;
+    .oauthOptions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .oauthDivider {
+        color: #777;
+        font-size: 13px;
+    }
+
+    .btn-primary,
+    .oauthButton.p-button {
+        box-sizing: border-box;
+        width: 100%;
+        height: 40px;
+        padding: 0 12px;
         font-size: 16px;
         font-weight: 500;
         border-radius: 4px;
-        padding: 6px 12px;
+    }
+
+    .btn-primary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        background-color: #2d8cf0;
+        border-color: #2d8cf0;
         margin-bottom: 5px;
 
         &:hover {
             opacity: 0.90;
         }
+    }
+
+    .oauthButton.p-button {
+        justify-content: center;
+        background: #f0f2f5;
+        border-color: #d0d5dd;
+        color: #333;
+    }
+
+    .oauthButton.p-button:hover {
+        background: #e4e7ec;
+        border-color: #c2c8d2;
+        color: #333;
     }
 
     button {
@@ -207,7 +245,5 @@ export default {
         color: red;
         margin: 0;
     }
-
-    .tipLine {}
 }
 </style>

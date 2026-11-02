@@ -64,11 +64,13 @@ function GetApi(path: string): string {
 }
 
 function GetWebSocketUrl(): string {
-  const url = "ws://api.moelink.site";
   if (IsLocalAccess()) {
     return "ws://localhost:8181";
   }
-  return url;
+  // HTTPS 页面不能用 ws://（浏览器会按混合内容拦截），生产走 wss://；
+  // 由 gateway 做 WebSocket upgrade 转发到 maj-server。
+  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  return `${scheme}://api.moelink.site`;
 }
 
 /**
