@@ -27,6 +27,15 @@ declare module '@vue/runtime-core' {
   }
 }
 
+// 从 genshinquiz 等附属站跳转过来时，token 通过 URL hash 传入；
+// 必须在路由页面创建前写入 localStorage，否则页面会误判为未登录。
+const hashParams = new URLSearchParams(window.location.hash.slice(1))
+const incomingToken = hashParams.get('oauth_token')
+if (incomingToken) {
+  func.SaveToken(incomingToken)
+  window.history.replaceState(null, document.title, window.location.pathname + window.location.search)
+}
+
 const app = createApp(App)
 
 app.use(router)

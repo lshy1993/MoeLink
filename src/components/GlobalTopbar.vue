@@ -112,6 +112,7 @@
           {{ item.label }}
         </router-link>
         <a class="mLink" :href="quizUrl" target="_blank" rel="noopener">原神问答 ↗</a>
+        <router-link v-if="logined" class="mLink" to="/profile">👤 个人资料</router-link>
         <router-link v-if="logined" class="mLink" to="/wallet">💰 我的钱包（{{ formatCoin(wallet.balance) }}）</router-link>
         <router-link v-if="adminVisible" class="mLink admin" to="/admin">管理后台</router-link>
         <button v-if="!logined" class="mLogin" :disabled="!serverOn" @click.stop="$emit('show-login')">
@@ -216,6 +217,11 @@ export default {
         icon: 'pi pi-calendar-plus',
         disabled: this.wallet.checked_today || this.checkingIn,
         command: () => this.doCheckin(),
+      })
+      items.push({
+        label: '个人资料',
+        icon: 'pi pi-user',
+        command: () => this.$router.push('/profile'),
       })
       items.push({
         label: '我的钱包',

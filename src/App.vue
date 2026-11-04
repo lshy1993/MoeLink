@@ -21,7 +21,7 @@
       :visible="announcementOpen"
       @close="announcementOpen = false"
     />
-    <toast />
+    <toast position="bottom-left" />
     <confirm-dialog />
   </div>
 </template>
@@ -64,12 +64,14 @@ export default {
     this.checkServer()
   },
   mounted() {
+    window.addEventListener('moelink:profile-updated', this.initLoginStatus)
     this.consumeOAuthCallback()
     this.initLoginStatus()
     this.loadAnnouncement()
     this.announcementTimer = setInterval(this.loadAnnouncement, 5 * 60 * 1000)
   },
   beforeUnmount() {
+    window.removeEventListener('moelink:profile-updated', this.initLoginStatus)
     clearInterval(this.announcementTimer)
   },
   watch: {
