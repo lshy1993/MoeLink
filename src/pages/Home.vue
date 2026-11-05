@@ -72,6 +72,9 @@
       <router-link class="quickLink" to="/miao">
         <span aria-hidden="true">🏠</span>小屋
       </router-link>
+      <router-link class="quickLink" to="/sudoku">
+        <span aria-hidden="true">🧩</span>数独世界
+      </router-link>
     </nav>
   </div>
 </template>

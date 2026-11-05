@@ -90,6 +90,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../pages/stocks/StockDetail.vue'),
   },
   {
+    path: '/sudoku',
+    name: 'sudoku-world',
+    component: () => import('../pages/sudoku/SudokuWorld.vue'),
+  },
+  {
     path: '/orders',
     name: 'shop-orders',
     component: () => import('../pages/shop/MyOrders.vue'),

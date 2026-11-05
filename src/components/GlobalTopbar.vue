@@ -178,6 +178,7 @@ export default {
         { to: '/blog', label: '博客' },
         { to: '/shop', label: '萌购' },
         { to: '/stocks', label: '模拟股市' },
+        { to: '/sudoku', label: '数独世界' },
         { to: '/alphasoul', label: 'AlphaSoul' },
       ],
     }

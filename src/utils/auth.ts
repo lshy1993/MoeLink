@@ -25,7 +25,8 @@ export function GetAuthBase(): string {
 
 function payloadOf(token: string): { user_id?: number; exp?: number } {
   try {
-    const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const part = token.split('.')[1]?.replace(/-/g, '+').replace(/_/g, '/');
+    if (!part) return {};
     return JSON.parse(atob(part));
   } catch {
     return {};
