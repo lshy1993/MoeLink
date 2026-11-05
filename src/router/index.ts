@@ -60,6 +60,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../pages/profile/Profile.vue'),
   },
   {
+    path: '/sso/authorize',
+    name: 'sso-authorize',
+    component: () => import('../pages/sso/Authorize.vue'),
+  },
+  {
     path: '/wallet',
     name: 'wallet',
     component: () => import('../pages/wallet/Wallet.vue'),

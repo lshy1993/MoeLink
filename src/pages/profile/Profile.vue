@@ -114,8 +114,24 @@
       </section>
 
       <section class="card">
-        <h2 class="cardTitle"><i class="pi pi-lock"></i> 修改密码</h2>
-        <p v-if="!hasPassword" class="hint">当前账号通过第三方登录，没有设置密码。</p>
+        <h2 class="cardTitle"><i class="pi pi-lock"></i> {{ hasPassword ? '修改密码' : '设置密码' }}</h2>
+        <template v-if="!hasPassword">
+          <p class="hint">当前账号通过第三方登录，还没有密码。设置后可使用邮箱 {{ profile.email }} 加密码登录。</p>
+          <form class="formGrid" @submit.prevent="setPassword">
+            <label class="field">
+              <span>新密码（至少 6 位）</span>
+              <Password v-model="pwd.next" :feedback="false" toggleMask fluid autocomplete="new-password" />
+            </label>
+            <label class="field">
+              <span>确认新密码</span>
+              <Password v-model="pwd.confirm" :feedback="false" toggleMask fluid autocomplete="new-password" />
+            </label>
+            <div class="actions full">
+              <Button type="submit" label="设置密码" icon="pi pi-check" :loading="changingPwd"
+                :disabled="pwd.next.length < 6 || pwd.next !== pwd.confirm" />
+            </div>
+          </form>
+        </template>
         <form v-else class="formGrid" @submit.prevent="changePassword">
           <label class="field">
             <span>当前密码</span>
@@ -217,7 +233,7 @@ export default {
       changingPwd: false,
       uploading: false,
       showIp: false,
-      pwd: { old: '', next: '' },
+      pwd: { old: '', next: '', confirm: '' },
       visibilityOptions: VISIBILITIES,
       profile: {},
       identities: [],
@@ -258,11 +274,29 @@ export default {
     },
   },
   async mounted() {
+    window.addEventListener('moelink:auth-changed', this.onAuthChanged)
     if (!this.logined) return
     await this.consumeLinkCallback()
     await Promise.all([this.loadProfile(), this.loadIdentities()])
   },
+  beforeUnmount() {
+    window.removeEventListener('moelink:auth-changed', this.onAuthChanged)
+  },
   methods: {
+    // 在本页登出 / 登录时，同步页面状态；登出时清掉已加载的个人数据
+    async onAuthChanged() {
+      const nowLogined = !!GetToken()
+      if (nowLogined === this.logined) return
+      this.logined = nowLogined
+      this.profile = {}
+      this.identities = []
+      this.hasPassword = false
+      this.showIp = false
+      this.pwd = { old: '', next: '', confirm: '' }
+      if (nowLogined) {
+        await Promise.all([this.loadProfile(), this.loadIdentities()])
+      }
+    },
     headers() {
       return { Authorization: `Bearer ${GetToken()}` }
     },
@@ -376,10 +410,27 @@ export default {
           { oldPassword: this.pwd.old, newPassword: this.pwd.next },
           { headers: this.headers() },
         )
-        this.pwd = { old: '', next: '' }
+        this.pwd = { old: '', next: '', confirm: '' }
         this.notify('success', '已修改', '密码修改成功')
       } catch (err) {
         this.notify('error', '修改失败', this.errorText(err, '密码修改失败，请检查当前密码'))
+      } finally {
+        this.changingPwd = false
+      }
+    },
+    async setPassword() {
+      if (this.pwd.next !== this.pwd.confirm) {
+        this.notify('warn', '两次输入不一致', '请重新确认新密码')
+        return
+      }
+      this.changingPwd = true
+      try {
+        await axios.post(GetApi('/user/set-password'), { newPassword: this.pwd.next }, { headers: this.headers() })
+        this.pwd = { old: '', next: '', confirm: '' }
+        this.notify('success', '已设置', '密码设置成功，现在可以用邮箱和密码登录')
+        await this.loadIdentities()
+      } catch (err) {
+        this.notify('error', '设置失败', this.errorText(err, '密码设置失败'))
       } finally {
         this.changingPwd = false
       }

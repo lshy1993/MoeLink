@@ -1,4 +1,5 @@
 import qs from 'qs';
+import { clearAccessToken, getAccessToken, setAccessToken } from './auth';
 // 在浏览器环境中使用 crypto-js 替代 Node.js crypto
 // import crypto from 'crypto-js';
 
@@ -95,32 +96,18 @@ function GetQuizUrl(): string {
   return import.meta.env.VITE_QUIZ_URL || 'https://quiz.moelink.site';
 }
 
-// ── 统一用户系统 JWT（Bearer）── 存储在 localStorage，请求时自动附带
-const TOKEN_KEY = 'moelink_token';
+// ── 统一用户系统 access token（Bearer）── 只保存在内存，到期前由会话 Cookie 自动续期（见 ./auth）
 
 function GetToken(): string {
-  try {
-    return localStorage.getItem(TOKEN_KEY) || '';
-  } catch (err) {
-    return '';
-  }
+  return getAccessToken();
 }
 
 function SaveToken(token: string): void {
-  try {
-    localStorage.setItem(TOKEN_KEY, token);
-  } catch (err) {
-    /* ignore */
-  }
+  setAccessToken(token);
 }
 
 function ClearToken(): void {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem('validtime'); // 旧版登录时间缓存
-  } catch (err) {
-    /* ignore */
-  }
+  clearAccessToken();
 }
 
 function AuthorizationHeaders(): Record<string, string> {

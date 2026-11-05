@@ -35,6 +35,7 @@ import GlobalTopbar from '@/components/GlobalTopbar.vue'
 import loginBox from '@/components/LoginBox.vue'
 import { userInstance as User } from '@/types/User'
 import { ClearToken, GetApi, GetToken, SaveToken } from '@/utils' // 路径根据你的实际位置调整
+import { endSession, GetAuthBase, syncSession } from '@/utils/auth'
 const SEEN_KEY = 'moelink_seen_announcement'
 
 export default {
@@ -65,6 +66,9 @@ export default {
   },
   mounted() {
     window.addEventListener('moelink:profile-updated', this.initLoginStatus)
+    window.addEventListener('focus', this.syncSharedLogin)
+    document.addEventListener('visibilitychange', this.syncSharedLogin)
+    window.addEventListener('moelink:session-expired', this.removeUserInfo)
     this.consumeOAuthCallback()
     this.initLoginStatus()
     this.loadAnnouncement()
@@ -72,6 +76,9 @@ export default {
   },
   beforeUnmount() {
     window.removeEventListener('moelink:profile-updated', this.initLoginStatus)
+    window.removeEventListener('focus', this.syncSharedLogin)
+    document.removeEventListener('visibilitychange', this.syncSharedLogin)
+    window.removeEventListener('moelink:session-expired', this.removeUserInfo)
     clearInterval(this.announcementTimer)
   },
   watch: {
@@ -83,19 +90,17 @@ export default {
   methods: {
     consumeOAuthCallback() {
       const params = new URLSearchParams(window.location.hash.slice(1))
-      const token = params.get('oauth_token')
+      const loginDone = params.get('oauth_login') === 'success'
       const oauthError = params.get('oauth_error')
-      if (!token && !oauthError) return
+      if (!loginDone && !oauthError) return
 
       window.history.replaceState(
         null,
         document.title,
         window.location.pathname + window.location.search,
       )
-      if (token) {
-        SaveToken(token)
-        return
-      }
+      // 第三方登录成功后，会话 Cookie 已由 auth-service 下发，启动时的续期已经拿到 token
+      if (loginDone) return
 
       const messages = {
         authorization_denied: '已取消第三方登录',
@@ -165,6 +170,14 @@ export default {
       this.loginOn = false
       this.user.logined = true
       document.body.classList = [this.loginOn ? 'hideScroll' : '']
+      window.dispatchEvent(new Event('moelink:auth-changed'))
+    },
+    // 回到本页时检查其他站（quiz）是否登录 / 登出过，变化则刷新登录状态
+    async syncSharedLogin() {
+      if (document.visibilityState === 'hidden') return
+      if (!(await syncSession())) return
+      await this.initLoginStatus()
+      if (!GetToken() && this.$route.path === '/profile') this.$router.push('/')
     },
     async initLoginStatus() {
       // 无 token 时直接回到未登录态
@@ -213,20 +226,21 @@ export default {
         console.error('获取用户信息失败', err)
       }
     },
+    // 登录 / 注册直接请求 auth-service：它会下发 HttpOnly 会话 Cookie，并返回短期 access token
+    async authenticate(path, formdata) {
+      const response = await axios.post(
+        `${GetAuthBase()}${path}`,
+        { email: formdata.email, password: formdata.password, language: 'zh' },
+        { withCredentials: true },
+      )
+      const token = response.data?.token
+      if (!token) throw new Error('响应缺少 token')
+      SaveToken(token)
+      await this.initLoginStatus()
+    },
     async logIn(formdata) {
       try {
-        const response = await axios.post(GetApi('/user/login'), {
-          email: formdata.email,
-          password: formdata.password,
-        })
-        const { token, userInfo } = response.data
-        if (!token) throw new Error('登录响应缺少 token')
-        this.user.userinfo = userInfo || {}
-        User.Init(userInfo || {})
-        this.openUserPanel()
-        // 令牌与用户信息落本地（session 有效期由 JWT exp 决定）
-        SaveToken(token)
-        this.getUserInfo()
+        await this.authenticate('/auth/login', formdata)
         const page = this.$refs.mainPage
         if (page?.loginDone) page.loginDone()
       } catch (err) {
@@ -236,38 +250,24 @@ export default {
     },
     async signUp(formdata) {
       try {
-        const url = GetApi('/user/signup')
-        const response = await axios.post(url, {
-          email: formdata.email,
-          password: formdata.password,
-        })
-        const { token, userInfo } = response.data
-        if (!token) throw new Error('注册响应缺少 token')
         // 注册成功即自动登录，同一账号在 MoeLink 与原神问答通用
-        SaveToken(token)
-        this.user.userinfo = userInfo || {}
-        User.Init(userInfo || {})
-        this.openUserPanel()
-        this.getUserInfo()
+        await this.authenticate('/auth/register', formdata)
       } catch (err) {
         console.error('注册失败', err)
         alert('注册失败：该邮箱可能已被占用')
       }
     },
     async logOut() {
-      try {
-        const url = GetApi('/user/logout')
-        await axios.post(url)
-      } catch (err) {
-        console.error('登出失败', err)
-      }
+      await endSession()
       this.removeUserInfo()
+      if (this.$route.path !== '/') this.$router.push('/')
     },
     removeUserInfo() {
       this.user.logined = false
       this.user.userinfo = {}
       ClearToken()
       User.Logout()
+      window.dispatchEvent(new Event('moelink:auth-changed'))
     },
   },
   components: {
