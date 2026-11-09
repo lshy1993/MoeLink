@@ -12,6 +12,9 @@ RUN if [ ! -L node_modules/.bin/vite ]; then rm -rf node_modules && bun install 
 # Vite 在构建时把 key 内联进前端包（PrimeUI 授权密钥属于前端公开配置）
 ARG VITE_PRIMEUI_LICENSE_KEY=
 ENV VITE_PRIMEUI_LICENSE_KEY=$VITE_PRIMEUI_LICENSE_KEY
+# 构建版本号；留空时 Vite 自动使用构建时间戳
+ARG VITE_BUILD_VERSION=
+ENV VITE_BUILD_VERSION=$VITE_BUILD_VERSION
 # 直接执行 Vite 真实入口，不再经过 node_modules/.bin 符号链接
 RUN bun node_modules/vite/bin/vite.js build
 

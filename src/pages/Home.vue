@@ -76,6 +76,11 @@
         <span aria-hidden="true">🧩</span>数独世界
       </router-link>
     </nav>
+
+    <footer class="homeFooter">
+      <span>© {{ currentYear }} MoeLink</span>
+      <span class="buildWatermark" :title="buildTimeLabel">build {{ buildVersion }}</span>
+    </footer>
   </div>
 </template>
 
@@ -90,7 +95,18 @@ export default {
       posts: [],
       stats: null,
       quizUrl: GetQuizUrl(),
+      currentYear: new Date().getFullYear(),
+      buildVersion: __BUILD_VERSION__,
+      buildTime: __BUILD_TIME__,
     }
+  },
+  computed: {
+    buildTimeLabel() {
+      const d = new Date(this.buildTime)
+      return Number.isNaN(d.getTime())
+        ? ''
+        : `构建时间：${d.toLocaleString('zh-CN', { hour12: false })}`
+    },
   },
   mounted() {
     this.loadBlog()
@@ -283,6 +299,24 @@ export default {
   }
 }
 
+.homeFooter {
+  max-width: 960px;
+  margin: 40px auto 0;
+  padding: 16px 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #b6c0d8;
+  font-size: 12px;
+}
+
+.buildWatermark {
+  color: #c3cbe0;
+  letter-spacing: 0.04em;
+  cursor: default;
+}
+
 @media (max-width: 720px) {
   .sectionGrid {
     grid-template-columns: 1fr;
@@ -292,6 +326,12 @@ export default {
 
   .quickNav {
     justify-content: center;
+  }
+
+  .homeFooter {
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 28px;
   }
 }
 </style>
