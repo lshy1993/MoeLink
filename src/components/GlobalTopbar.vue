@@ -115,6 +115,9 @@
         <router-link v-if="logined" class="mLink" to="/profile">👤 个人资料</router-link>
         <router-link v-if="logined" class="mLink" to="/wallet">💰 我的钱包（{{ formatCoin(wallet.balance) }}）</router-link>
         <router-link v-if="adminVisible" class="mLink admin" to="/admin">管理后台</router-link>
+        <a v-if="adminVisible" class="mLink admin" :href="guardianUrl" target="_blank" rel="noopener">
+          Guardian ↗
+        </a>
         <button v-if="!logined" class="mLogin" :disabled="!serverOn" @click.stop="$emit('show-login')">
           {{ serverOn ? '登录 / 注册' : '服务器维护中' }}
         </button>
@@ -205,6 +208,13 @@ export default {
     adminVisible() {
       return Number(this.userinfo.group) >= 100
     },
+    guardianUrl() {
+      const host = window.location.hostname
+      const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(host)
+      return isLocal
+        ? 'http://localhost:8000/_gateway/ui'
+        : 'https://guardian.moelink.site/_gateway/ui'
+    },
     avatarUrl() {
       if (!this.email) {
         return 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
@@ -240,6 +250,11 @@ export default {
           label: '管理后台',
           icon: 'pi pi-cog',
           command: () => this.$router.push('/admin'),
+        })
+        items.push({
+          label: 'Guardian 控制台',
+          icon: 'pi pi-shield',
+          command: () => window.open(this.guardianUrl, '_blank', 'noopener'),
         })
       }
       items.push({ separator: true })
