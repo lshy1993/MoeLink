@@ -5,6 +5,7 @@ interface UserInfo {
   uid: number;
   nickname: string;
   email: string;
+  avatar_url: string;
   group: number;
   regtime: string;
   logintime: string;
@@ -30,6 +31,7 @@ class User {
       uid: -1,
       nickname: "",
       email: "example@adress.com",
+      avatar_url: "",
       group: -1,
       regtime: "",
       logintime: "",
@@ -63,6 +65,7 @@ class User {
       uid: -1,
       nickname: "",
       email: "",
+      avatar_url: "",
       group: -1,
       regtime: "",
       logintime: "",
@@ -88,6 +91,10 @@ class User {
   avatarUrl(): string {
     if (!this.logined) {
       return "";
+    }
+
+    if (this.info.avatar_url) {
+      return this.info.avatar_url;
     }
 
     if (!this.info.email) {

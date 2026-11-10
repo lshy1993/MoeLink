@@ -141,9 +141,13 @@
             <span>新密码（至少 6 位）</span>
             <Password v-model="pwd.next" :feedback="false" toggleMask fluid autocomplete="new-password" />
           </label>
+          <label class="field">
+            <span>确认新密码</span>
+            <Password v-model="pwd.confirm" :feedback="false" toggleMask fluid autocomplete="new-password" />
+          </label>
           <div class="actions full">
             <Button type="submit" label="修改密码" icon="pi pi-check" :loading="changingPwd"
-              :disabled="!pwd.old || pwd.next.length < 6" />
+              :disabled="!pwd.old || pwd.next.length < 6 || pwd.next !== pwd.confirm" />
           </div>
         </form>
       </section>
@@ -403,6 +407,10 @@ export default {
       }
     },
     async changePassword() {
+      if (this.pwd.next !== this.pwd.confirm) {
+        this.notify('warn', '两次输入不一致', '请重新确认新密码')
+        return
+      }
       this.changingPwd = true
       try {
         await axios.post(

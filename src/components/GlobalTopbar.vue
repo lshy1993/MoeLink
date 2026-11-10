@@ -216,6 +216,8 @@ export default {
         : 'https://guardian.moelink.site/_gateway/ui'
     },
     avatarUrl() {
+      // OAuth/SSO 账号优先使用第三方头像；没有时才回退 Gravatar
+      if (this.userinfo.avatar_url) return this.userinfo.avatar_url
       if (!this.email) {
         return 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
       }
