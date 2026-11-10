@@ -27,6 +27,7 @@
                 />
                 <span class="errMsg">{{ loginErrMsg.pwd }}</span>
             </div>
+            <div v-if="serverError" class="serverError">{{ serverError }}</div>
             <button type="button" class="btn-primary clickable" @click="handleLogin()">
                 <span>{{ email ? registerMode ? "注册" : "登录" : "注册 or 登录" }}</span>
             </button>
@@ -65,6 +66,10 @@ import axios from 'axios';
 export default {
     name: 'LoginBox',
     components: { Button, InputText },
+    props: {
+        serverError: { type: String, default: '' },
+    },
+    emits: ['login', 'signup', 'clear-error'],
     data() {
         return {
             registerMode: false,
@@ -81,9 +86,12 @@ export default {
         }
     },
     watch: {
+        email() {
+            this.$emit('clear-error');
+        },
         password() {
             this.checkPassword();
-            //console.log('pwd changed');
+            this.$emit('clear-error');
         }
     },
     methods: {
@@ -191,6 +199,14 @@ export default {
     .oauthDivider {
         color: #777;
         font-size: 13px;
+    }
+
+    .serverError {
+        margin: -10px 0 12px;
+        color: #d93025;
+        font-size: 13px;
+        line-height: 1.4;
+        text-align: left;
     }
 
     .btn-primary,

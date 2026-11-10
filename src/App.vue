@@ -11,7 +11,12 @@
       @logout="logOut"
     />
     <div v-if="loginOn & !userLogined" class="loginDiv" @mousedown="showLoginBox">
-      <login-box @login="logIn" @signup="signUp" />
+      <login-box
+        :server-error="loginError"
+        @login="logIn"
+        @signup="signUp"
+        @clear-error="loginError = ''"
+      />
     </div>
     <div id="appBody" class="appBody">
       <router-view ref="mainPage" :user="user"></router-view>
@@ -44,6 +49,7 @@ export default {
     return {
       debug: true,
       loginOn: false,
+      loginError: '',
       serverOn: false,
       announcement: null,
       announcementOpen: false,
@@ -164,10 +170,12 @@ export default {
     },
     showLoginBox() {
       this.loginOn = !this.loginOn
+      this.loginError = ''
       document.body.classList = [this.loginOn ? 'hideScroll' : '']
     },
     openUserPanel() {
       this.loginOn = false
+      this.loginError = ''
       this.user.logined = true
       document.body.classList = [this.loginOn ? 'hideScroll' : '']
       window.dispatchEvent(new Event('moelink:auth-changed'))
@@ -245,7 +253,7 @@ export default {
         if (page?.loginDone) page.loginDone()
       } catch (err) {
         console.error('登录失败', err)
-        alert('登录失败：邮箱或密码错误')
+        this.loginError = err.response?.data?.error || '登录失败：邮箱或密码错误'
       }
     },
     async signUp(formdata) {
@@ -254,7 +262,7 @@ export default {
         await this.authenticate('/auth/register', formdata)
       } catch (err) {
         console.error('注册失败', err)
-        alert('注册失败：该邮箱可能已被占用')
+        this.loginError = err.response?.data?.error || '注册失败：该邮箱可能已被占用'
       }
     },
     async logOut() {
