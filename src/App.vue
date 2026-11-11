@@ -28,6 +28,10 @@
     />
     <toast position="bottom-left" />
     <confirm-dialog />
+    <!-- 首页已有页脚水印，其余页面用固定在右下角的轻量水印 -->
+    <div v-if="$route.path !== '/'" class="buildBadge" :title="buildTimeLabel">
+      build {{ buildVersion }}
+    </div>
   </div>
 </template>
 
@@ -64,6 +68,15 @@ export default {
   computed: {
     userLogined() {
       return this.user.logined
+    },
+    buildVersion() {
+      return __BUILD_VERSION__
+    },
+    buildTimeLabel() {
+      const date = new Date(__BUILD_TIME__)
+      return Number.isNaN(date.getTime())
+        ? ''
+        : `构建时间：${date.toLocaleString('zh-CN', { hour12: false })}`
     },
   },
   created() {
@@ -302,6 +315,20 @@ export default {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+// 所有非首页的构建版本水印，保持低调、不参与布局
+.buildBadge {
+  position: fixed;
+  right: 10px;
+  bottom: 6px;
+  z-index: 900;
+  color: #c3cbe0;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+  cursor: default;
+  user-select: none;
 }
 
 .loginDiv {
