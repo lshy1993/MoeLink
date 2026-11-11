@@ -115,7 +115,8 @@
         <router-link v-if="logined" class="mLink" to="/profile">👤 个人资料</router-link>
         <router-link v-if="logined" class="mLink" to="/wallet">💰 我的钱包（{{ formatCoin(wallet.balance) }}）</router-link>
         <router-link v-if="adminVisible" class="mLink admin" to="/admin">管理后台</router-link>
-        <a v-if="adminVisible" class="mLink admin" :href="guardianUrl" target="_blank" rel="noopener">
+        <a v-if="adminVisible" class="mLink admin" :href="guardianUrl" target="_blank" rel="noopener"
+          @click.prevent="openGuardian">
           Guardian ↗
         </a>
         <button v-if="!logined" class="mLogin" :disabled="!serverOn" @click.stop="$emit('show-login')">
@@ -256,7 +257,7 @@ export default {
         items.push({
           label: 'Guardian 控制台',
           icon: 'pi pi-shield',
-          command: () => window.open(this.guardianUrl, '_blank', 'noopener'),
+          command: () => this.openGuardian(),
         })
       }
       items.push({ separator: true })
@@ -289,6 +290,15 @@ export default {
     window.removeEventListener('resize', this.onResize)
   },
   methods: {
+    // 已登录时把短期 access token 通过 URL fragment 交给 Guardian，
+    // 作为共享 Cookie 不可用时的兜底；fragment 不会发送到服务器。
+    openGuardian() {
+      const token = GetToken()
+      const url = token
+        ? `${this.guardianUrl}#token=${encodeURIComponent(token)}`
+        : this.guardianUrl
+      window.open(url, '_blank', 'noopener')
+    },
     openAnnouncement() {
       this.bellOpen = false
       this.$emit('show-announcement')
